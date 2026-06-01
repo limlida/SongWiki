@@ -1,0 +1,27 @@
+/* Book-to-EPUB 图片标题样式 */
+/* 注入方式: ebook-convert --extra-css caption.css */
+
+.caption {
+  display: block;
+  text-align: center;
+  font-size: 0.85em;
+  color: #555555;
+  margin-top: 0.2em;
+  margin-bottom: 1em;
+  margin-left: 0;
+  margin-right: 0;
+  text-indent: 0;
+  font-style: normal;
+}
+
+/* Book paragraph indent — targets Calibre-generated body paragraphs */
+/* Calibre assigns class numbers non-deterministically, so also use element selector */
+body > p, body > div > p {
+  text-indent: 2em;
+}
+/* Exclude headings, images, captions, hr, lists */
+h1, h2, h3, h4, h5, h6 { text-indent: 0; }
+img { text-indent: 0; }
+.caption, [class*="caption"] { text-indent: 0; }
+hr { text-indent: 0; }
+li, ol, ul { text-indent: 0; }

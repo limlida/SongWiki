@@ -1,0 +1,625 @@
+/* ============================================================
+   《陶瓷简史》EPUB 排版样式
+   基于原书 PDF 排版分析，目标还原度 ≥ 95%
+   ============================================================ */
+
+/* --- CSS Custom Properties --- */
+:root {
+  --color-primary: #5C3D2E;       /* 深棕褐：篇章标题、侧栏导航 */
+  --color-text: #000000;          /* 纯黑：正文 */
+  --color-caption: #999999;       /* 浅灰：图注 */
+  --color-page-number: #666666;   /* 中灰：页码 */
+  --color-divider: #CCCCCC;       /* 淡灰：分隔线 */
+  --color-muted: #666666;         /* 中灰：目录小节 */
+
+  --font-songti: "Songti SC", "SimSun", "Noto Serif CJK SC", "Source Han Serif SC", serif;
+  --font-heiti: "Heiti SC", "SimHei", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  --font-times: "Times New Roman", Georgia, "Noto Serif", serif;
+  --font-sans: "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+/* --- @page 规则 --- */
+@page {
+  size: A4 portrait;
+  margin: 2.5cm 2.0cm 2.5cm 2.0cm;
+}
+
+@page :first {
+  margin-top: 3cm;
+}
+
+@page chapter-start {
+  margin-top: 3cm;
+  margin-bottom: 3cm;
+}
+
+/* --- 基础排版 --- */
+body {
+  font-family: var(--font-songti);
+  font-size: 10.5pt;
+  line-height: 1.5;
+  color: var(--color-text);
+  text-align: justify;
+  margin: 0;
+  padding: 0;
+}
+
+/* --- 正文段落 --- */
+p {
+  text-indent: 2em;
+  margin: 0;
+  padding: 0;
+}
+
+/* 段落间距：通过 margin 实现 */
+p + p {
+  margin-top: 0.8em;
+}
+
+/* 段首无缩进的例外 */
+.no-indent,
+p.no-indent,
+p.cover-text,
+p.toc-entry,
+p.copyright,
+p.epigraph {
+  text-indent: 0;
+}
+
+/* --- 标题层级 --- */
+
+/* 一级标题（正文内，如"克己复礼——汝窑官窑"） */
+h1 {
+  font-family: var(--font-heiti);
+  font-size: 22pt;
+  font-weight: bold;
+  color: var(--color-text);
+  text-indent: 0;
+  margin: 2em 0 1em 0;
+  line-height: 1.3;
+  page-break-after: avoid;
+}
+
+/* 二级标题（节标题，如"从陶到瓷"） */
+h2 {
+  font-family: var(--font-songti);
+  font-size: 14pt;
+  font-weight: bold;
+  color: var(--color-text);
+  text-indent: 0;
+  margin: 1.5em 0 0.8em 0;
+  line-height: 1.4;
+  page-break-after: avoid;
+}
+
+/* 三级标题 */
+h3 {
+  font-family: var(--font-songti);
+  font-size: 12pt;
+  font-weight: bold;
+  color: var(--color-text);
+  text-indent: 0;
+  margin: 1.2em 0 0.6em 0;
+  line-height: 1.4;
+  page-break-after: avoid;
+}
+
+/* 标题不缩进 */
+h1, h2, h3, h4, h5, h6 {
+  text-indent: 0;
+}
+
+/* ============================================================
+   篇章起始页（.chapter-start）
+   原书设计：独立整页，极简风格
+   序号(72pt) → 分隔线 → 中文标题(24pt) → 英文标题(18pt) → 底部小节预览
+   ============================================================ */
+.chapter-start {
+  page-break-before: always;
+  page-break-after: always;
+  text-align: center;
+  padding-top: 18%;
+  position: relative;
+  min-height: 80vh;
+}
+
+/* 篇章序号（如 "1"） */
+.chapter-start .chapter-number {
+  font-family: var(--font-sans);
+  font-size: 72pt;
+  font-weight: 300;
+  color: var(--color-primary);
+  display: block;
+  margin-bottom: 0.3em;
+  line-height: 1;
+}
+
+/* 分隔线 */
+.chapter-start .divider {
+  width: 25%;
+  height: 1px;
+  border: none;
+  border-top: 1px solid var(--color-divider);
+  margin: 0.5em auto;
+  display: block;
+}
+
+/* 篇章中文标题（如 "火篇"） */
+.chapter-start .chapter-title-cn {
+  font-family: var(--font-songti);
+  font-size: 24pt;
+  font-weight: normal;
+  color: var(--color-primary);
+  display: block;
+  margin-bottom: 0.3em;
+  letter-spacing: 0.1em;
+}
+
+/* 篇章英文标题（如 "Fire"） */
+.chapter-start .chapter-title-en {
+  font-family: var(--font-times);
+  font-size: 18pt;
+  font-weight: normal;
+  color: var(--color-text);
+  display: block;
+  margin-bottom: 0;
+}
+
+/* 底部小节预览列表 */
+.chapter-start .section-preview {
+  font-family: var(--font-songti);
+  font-size: 8pt;
+  color: var(--color-caption);
+  line-height: 2;
+  position: absolute;
+  bottom: 8%;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+.chapter-start .section-preview span {
+  display: block;
+}
+
+/* ============================================================
+   侧栏导航（.sidebar-nav）
+   原书设计：页面外侧竖排文字，用于章节定位
+   ============================================================ */
+.sidebar-nav {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-family: var(--font-songti);
+  font-size: 9pt;
+  color: var(--color-primary);
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  letter-spacing: 0.15em;
+  white-space: nowrap;
+}
+
+/* 左页侧栏（左侧） */
+.sidebar-nav.left {
+  left: 0.4cm;
+}
+
+/* 右页侧栏（右侧） */
+.sidebar-nav.right {
+  right: 0.4cm;
+}
+
+/* 篇名与节名分隔 */
+.sidebar-nav .nav-section {
+  border-top: 1px solid var(--color-primary);
+  padding-top: 0.8em;
+  margin-top: 0.8em;
+}
+
+/* ============================================================
+   图片排版
+   原书设计：4 种变体
+   ============================================================ */
+
+/* --- 单张图片（居中，占版心 2/3）--- */
+.figure-single {
+  text-align: center;
+  margin: 1.5em 0;
+  page-break-inside: avoid;
+}
+
+.figure-single img {
+  width: 66%;
+  max-width: 100%;
+  height: auto;
+}
+
+/* --- 双图并排 --- */
+.figure-pair {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1cm;
+  margin: 1.5em 0;
+  page-break-inside: avoid;
+}
+
+.figure-pair .figure-item {
+  flex: 0 0 42%;
+  text-align: center;
+}
+
+.figure-pair .figure-item img {
+  width: 100%;
+  height: auto;
+}
+
+/* --- 全页文物图 --- */
+.figure-fullpage {
+  position: relative;
+  page-break-before: always;
+  page-break-after: always;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.figure-fullpage img {
+  width: 100%;
+  max-height: 100vh;
+  object-fit: contain;
+}
+
+/* 叠加在图片上的白色图注 */
+.figure-fullpage .caption-overlay {
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  font-family: var(--font-songti);
+  font-size: 8pt;
+  color: #FFFFFF;
+  text-align: right;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  text-indent: 0;
+  line-height: 1.6;
+}
+
+/* --- 主图 + 局部放大图 --- */
+.figure-detail {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5cm;
+  margin: 1.5em 0;
+  page-break-inside: avoid;
+}
+
+.figure-detail .main-image {
+  flex: 0 0 60%;
+  text-align: center;
+}
+
+.figure-detail .main-image img {
+  width: 100%;
+}
+
+.figure-detail .detail-image {
+  flex: 0 0 35%;
+  text-align: center;
+}
+
+.figure-detail .detail-image img {
+  width: 100%;
+}
+
+.figure-detail .detail-note {
+  font-family: var(--font-songti);
+  font-size: 8pt;
+  color: var(--color-caption);
+  margin-top: 0.3em;
+  text-indent: 0;
+}
+
+/* --- 图注（通用）--- */
+.caption,
+figcaption {
+  font-family: var(--font-songti);
+  font-size: 9pt;
+  color: var(--color-caption);
+  text-align: center;
+  margin-top: 0.3em;
+  margin-bottom: 0;
+  text-indent: 0;
+  line-height: 1.4;
+  font-style: normal;
+}
+
+/* 图片元素不缩进 */
+img, figure, .figure-single, .figure-pair, .figure-fullpage, .figure-detail {
+  text-indent: 0;
+}
+
+/* ============================================================
+   封面页
+   ============================================================ */
+.cover {
+  text-align: center;
+  page-break-after: always;
+  position: relative;
+  min-height: 90vh;
+  padding-top: 15%;
+}
+
+/* 英文主标题 */
+.cover .title-en-main {
+  font-family: var(--font-times);
+  font-size: 28pt;
+  font-weight: normal;
+  color: var(--color-primary);
+  margin-bottom: 0.2em;
+}
+
+/* 英文副标题 */
+.cover .title-en-sub {
+  font-family: var(--font-times);
+  font-size: 14pt;
+  font-weight: normal;
+  color: var(--color-primary);
+  margin-bottom: 2em;
+}
+
+/* 装饰图案 */
+.cover .emblem {
+  width: 80px;
+  margin: 1.5em auto;
+  display: block;
+}
+
+/* 中文主标题 */
+.cover .title-cn-main {
+  font-family: var(--font-heiti);
+  font-size: 36pt;
+  font-weight: bold;
+  color: var(--color-primary);
+  margin-bottom: 0.2em;
+}
+
+/* 中文副标题 */
+.cover .title-cn-sub {
+  font-family: var(--font-songti);
+  font-size: 16pt;
+  font-weight: normal;
+  color: var(--color-text);
+  margin-bottom: 2em;
+}
+
+/* 作者 */
+.cover .author {
+  font-family: var(--font-songti);
+  font-size: 12pt;
+  color: var(--color-text);
+  margin-top: 2em;
+}
+
+/* 出版社 */
+.cover .publisher {
+  font-family: var(--font-songti);
+  font-size: 10pt;
+  color: var(--color-text);
+  position: absolute;
+  bottom: 2cm;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+/* ============================================================
+   目录页
+   ============================================================ */
+.toc {
+  page-break-before: always;
+  padding: 2em 0;
+}
+
+.toc-title {
+  font-family: var(--font-songti);
+  font-size: 18pt;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 2em;
+  text-indent: 0;
+}
+
+/* 篇章标题行 */
+.toc .chapter-entry {
+  font-family: var(--font-songti);
+  font-size: 14pt;
+  font-weight: bold;
+  color: var(--color-text);
+  margin-top: 1.2em;
+  margin-bottom: 0.3em;
+  text-indent: 0;
+}
+
+/* 小节标题行 */
+.toc .section-entry {
+  font-family: var(--font-songti);
+  font-size: 10.5pt;
+  color: var(--color-muted);
+  line-height: 2;
+  text-indent: 2em;
+  display: flex;
+  justify-content: space-between;
+}
+
+.toc .section-entry .toc-page {
+  color: var(--color-muted);
+  flex-shrink: 0;
+}
+
+/* 篇章间分隔线 */
+.toc .chapter-divider {
+  width: 25%;
+  height: 1px;
+  border: none;
+  border-top: 1px solid var(--color-divider);
+  margin: 1.5em auto;
+}
+
+/* ============================================================
+   版权页 / 编辑信息
+   ============================================================ */
+.copyright-page {
+  page-break-before: always;
+  padding: 3em 0;
+  font-size: 9pt;
+  line-height: 1.8;
+  color: var(--color-text);
+}
+
+.copyright-page p {
+  text-indent: 0;
+  margin: 0.3em 0;
+}
+
+.copyright-page .cip-title {
+  font-weight: bold;
+  margin-bottom: 1em;
+}
+
+.copyright-page .book-title {
+  font-weight: bold;
+  font-size: 11pt;
+}
+
+/* ============================================================
+   页码
+   ============================================================ */
+.page-number {
+  text-align: center;
+  font-family: var(--font-songti);
+  font-size: 9pt;
+  color: var(--color-page-number);
+  margin-top: 2em;
+  text-indent: 0;
+}
+
+/* ============================================================
+   引用块
+   ============================================================ */
+blockquote {
+  margin: 1em 2em;
+  padding: 0.5em 1em;
+  border-left: 3px solid var(--color-divider);
+  font-style: italic;
+  color: #333333;
+}
+
+blockquote p {
+  text-indent: 0;
+}
+
+/* ============================================================
+   列表
+   ============================================================ */
+ul, ol {
+  margin: 0.5em 0;
+  padding-left: 2em;
+}
+
+li {
+  margin: 0.2em 0;
+  text-indent: 0;
+}
+
+/* ============================================================
+   分隔线
+   ============================================================ */
+hr {
+  border: none;
+  border-top: 1px solid var(--color-divider);
+  margin: 1.5em auto;
+  width: 50%;
+}
+
+/* ============================================================
+   注释 / 脚注
+   ============================================================ */
+.footnote {
+  font-size: 8pt;
+  color: var(--color-caption);
+  vertical-align: super;
+}
+
+/* ============================================================
+   特殊页面类型
+   ============================================================ */
+
+/* 空白过渡页（篇章之间） */
+.blank-page {
+  page-break-before: always;
+  page-break-after: always;
+}
+
+/* 后记 */
+.afterword {
+  page-break-before: always;
+}
+
+/* 参考文献 */
+.references {
+  page-break-before: always;
+}
+
+.references p {
+  text-indent: 0;
+  font-size: 9pt;
+  line-height: 1.6;
+}
+
+/* ============================================================
+   暗色模式适配（可选）
+   ============================================================ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text: #E0E0E0;
+    --color-caption: #AAAAAA;
+    --color-page-number: #999999;
+    --color-divider: #555555;
+    --color-muted: #999999;
+  }
+
+  body {
+    background-color: #1A1A1A;
+    color: var(--color-text);
+  }
+
+  .chapter-start .chapter-number,
+  .chapter-start .chapter-title-cn {
+    color: var(--color-primary);
+  }
+}
+
+/* ============================================================
+   打印优化
+   ============================================================ */
+@media print {
+  body {
+    font-size: 10.5pt;
+  }
+
+  .chapter-start {
+    page-break-before: always;
+    page-break-after: always;
+  }
+
+  .figure-single,
+  .figure-pair,
+  .figure-detail {
+    page-break-inside: avoid;
+  }
+
+  .figure-fullpage {
+    page-break-before: always;
+    page-break-after: always;
+  }
+}

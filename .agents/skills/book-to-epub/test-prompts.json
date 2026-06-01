@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "prompt": "用 book-to-epub 把这本 PDF 书籍转成高质量 EPUB，先别急着交付，给我检查目录结构和图片完整性。",
+    "expected": "管线按 Coordinator 模板执行，先输出 MinerU 统计/TOC 摘要，再走 Process/Reviewer，最后给出可交付结果与检查报告。"
+  },
+  {
+    "id": 2,
+    "prompt": "这本书里有不少篇章扉页、并排图片、整页文物图和侧栏导航，转 EPUB 时要尽量还原版式，别只给我一个能打开的电子书。",
+    "expected": "输出能体现 chapter-start / figure-single / figure-pair / figure-fullpage / sidebar-nav 等语义，并说明 CSS/模板如何配合还原版式。"
+  },
+  {
+    "id": 3,
+    "prompt": "如果 Process 或 Reviewer 失败，不要静默继续，告诉我卡在哪一步、失败原因，以及你要怎么回退修复。",
+    "expected": "遵循失败回退策略，明确输出失败阶段、原因、重试/回退动作，不出现静默降级或跳过阶段。"
+  }
+]
