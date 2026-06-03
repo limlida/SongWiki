@@ -1,0 +1,38 @@
+# 环境
+.venv/
+node_modules/
+__pycache__/
+
+# Agent 内部配置（不长入知识库仓库）
+.claude/
+.cursor/
+.clawhub/
+.openclaw/
+.agents/
+
+# 大文件
+*.pdf
+*.epub
+*.zip
+*.tar.gz
+
+# 实验
+experiments/
+knowledge/raw/
+knowledge/converted/
+knowledge/inbox/
+
+# 临时文件
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+references/
+openclaw.json
+openclaw.example.json
+references/
+openclaw.json
+openclaw.example.json
+memory/
+openspec/
+tools/
