@@ -1,81 +1,65 @@
 # TOOLS.md - 工具与环境
 
-本文件只记录工具路径和命令。使用策略见 `RULES.md`，转换策略见 `KNOWLEDGE.md`。
+本文件只记录工具路径和命令。使用策略见 RULES.md，转换策略见 KNOWLEDGE.md。
 
 ## 工作区
 
-- 主工作区：`e:\Projects\OpenclawWorkspace`
-- 本地知识库：`knowledge/`
+- 主工作区：`/mnt/e/Projects/OpenclawWorkspace/`
+- Python：`python3`（WSL 无 `python` 命令）
+- 知识库：`knowledge/`
 
-## 文档转换工具
+## MinerU
 
-### pdf-craft
+用途：PDF/扫描书/复杂文档 → Markdown。
 
-用途：扫描书、整本书、古籍影印、现代研究书 PDF → Markdown/EPUB。
+```bash
+# venv
+/home/hello/.venv/mineru/bin/python
+# CLI
+/home/hello/.venv/mineru/bin/mineru -p <input> -o <output> -m ocr -b vlm-auto-engine
+# vLLM 服务启动
+bash /home/hello/.venv/mineru/start-vllm.sh
+```
 
-安装位置：`/home/hello/.venv/pdf-craft/`（venv）
-版本：v1.0.13
-调用：`/home/hello/.venv/pdf-craft/bin/python -c "from pdf_craft import ..."`
-
-### MinerU
-
-用途：复杂版面论文、多栏报告、Office 转 PDF、表格密集文档 → Markdown/JSON。扫描书/无文本层 PDF 也用 pipeline 后端。
-
-安装位置：`/home/hello/.venv/mineru/`（venv）
+模型：MinerU2.5-Pro-2605-1.2B（vLLM 0.20.2），端口 30000
 版本：v3.2.1
-CLI：`/home/hello/.venv/mineru/bin/mineru`
-常用命令：
-```bash
-# pipeline 后端（扫描书/通用，最低 4GB VRAM，推荐）
-/home/hello/.venv/mineru/bin/mineru -p <input> -o <output> -b pipeline
 
-# hybrid 后端（高精度，最低 8GB VRAM）
-/home/hello/.venv/mineru/bin/mineru -p <input> -o <output> -b hybrid
-```
-模型目录：`/mnt/e/Projects/OpenclawWorkspace/tools/models/mineru/`
-⚠️ 禁止使用旧版 `magic-pdf` 命令，那是 1.x 时代的 CLI，已废弃。
+## pdf-craft
 
-## 飞书工具
+用途：扫描书/古籍影印 PDF → Markdown/EPUB。
 
 ```bash
-lark-cli im          # 消息、群聊、附件下载和回复
-lark-cli event       # 监听飞书消息事件
-lark-cli docs --api-version v2  # 飞书云文档读写
-lark-cli drive       # 云空间搜索、上传、下载
+/home/hello/.venv/pdf-craft/bin/python
+# Python API
+from pdf_craft import transform_markdown
 ```
 
-## Gateway 管理
+版本：v1.0.13
+
+## lark-cli
+
+用途：飞书消息、云文档、云空间操作。
 
 ```bash
-openclaw gateway start
-openclaw gateway stop
-openclaw gateway restart
+lark-cli          # 飞书 CLI（v1.0.42）
+lark-cli im       # 消息操作
+lark-cli drive    # 云空间
+lark-cli docs     # 云文档
 ```
 
-不生效时用端口排查：
+## 工具链检查
 
 ```bash
-lsof -i :<port>
-kill <PID>
+python3 .agents/skills/openclaw-knowledge-admin/scripts/bootstrap_toolchain.py --check
 ```
 
 ## 浏览器
 
-- 固定 profile：`openclaw`。
-- 复用已有 tab，收录完成后关闭。
-- 卡顿时先关非活跃 tab。
+- Profile：`openclaw`
+- 用完关闭 tab
 
-## 配置
+## 注意
 
-实际 `openclaw.json` 不提交仓库。敏感字段通过环境变量或 secret provider 注入：
-- API Key
-- 飞书 App Secret
-- Gateway Token
-
-不要在聊天、日志或文件中输出这些值。
-
-验证配置：
-
-```bash
-python .agents/skills/openclaw-knowledge-admin/scripts/bootstrap_toolchain.py --check
-```
+- 所有文件输出写入工作区，禁止写入 `/tmp/`
+- image 工具只能读取工作区内的本地文件
+- 实际 `openclaw.json` 不提交仓库，敏感字段通过环境变量注入
