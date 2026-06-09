@@ -162,3 +162,8 @@ boss 发出 Ingest 指令（或确认新书可以进 Ingest）
 1. 估计耗时。≤10 秒直接回答。>10 秒 → 先写 tasks/ + 挂 watchdog → **第一条用户消息必须是任务回执** → 再调工具
 2. 禁止在回执之前调 web_search、exec、MinerU、OCR、浏览器抓取
 3. 完成后必须再发完成/失败摘要
+
+## 文件星座
+
+必读：AGENTS.md / SOUL.md / RULES.md / MEMORY.md / KNOWLEDGE.md
+按需：LARK.md（飞书协议）/ TOOLS.md（工具路径与命令）

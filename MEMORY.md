@@ -10,13 +10,15 @@
 1. 执行工具链检查：
    python3 .agents/skills/openclaw-knowledge-admin/scripts/bootstrap_toolchain.py --check
 
-2. 读 wiki/index.md（获取全局地图，当前页数）
+2. 读 KNOWLEDGE.md（了解 wiki 是什么、三大操作定义、页面格式与规则）
 
-3. 读 wiki/log.md 最后 10 条（恢复工作记忆）
+3. 读 wiki/index.md（获取全局地图）
+   + wiki/log.md 最后 10 条（恢复工作记忆）
+   + wiki/overview.md（知识全景）
 
 4. 检查 knowledge/tasks/ 是否有 running/pending 任务
 
-5. 判断任务类型 → 需要时读 KNOWLEDGE.md / LARK.md / TOOLS.md
+5. 判断任务类型 → 需要时读 LARK.md / TOOLS.md
 
 6. 开始执行
 ```
