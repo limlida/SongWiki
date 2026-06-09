@@ -44,21 +44,14 @@
 ## Step 4: 报告
 
 - [x] 质量报告已发给 boss（见本轮消息）
-- [x] boss 确认进 Ingest
-- [x] 已追加 `tasks/index.md`：running:Step4
-
-## Ingest 结果（2026-06-09）
-
-- [x] 全量提取完成
-- [x] 35 个 wiki 页面已建（1 source / 16 entity / 15 concept / 1 synthesis）
-- [x] wiki/index.md 已更新
-- [x] wiki/log.md 已追加
+- [ ] boss 确认进 Ingest
+- [ ] 已追加 `tasks/index.md`：running:Step4
 
 ## 收尾
 
-- [x] 文件已移动到 `tasks/done/`
-- [x] 已追加 `tasks/index.md`：done 行
-- [x] **回顾本清单**
+- [ ] 文件已移动到 `tasks/done/`
+- [ ] 已追加 `tasks/index.md`：done 行
+- [ ] **回顾本清单**
 
 ## 回退
 
