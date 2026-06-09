@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  selfcheck:
+    name: Knowledge Base Self-Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Run selfcheck
+        run: |
+          python3 .agents/skills/openclaw-kb-selfcheck/scripts/selfcheck.py --json 2>&1 | tee selfcheck-result.json
+          echo "---"
+          python3 .agents/skills/openclaw-kb-selfcheck/scripts/selfcheck.py
+
+  markdownlint:
+    name: Markdown Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install markdownlint-cli
+        run: npm install -g markdownlint-cli
+
+      - name: Lint knowledge directory
+        run: markdownlint "knowledge/**/*.md" --config .markdownlint.json
+
+  wikilink-check:
+    name: Wiki Link Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Check dead wikilinks
+        run: |
+          python3 .agents/skills/openclaw-kb-selfcheck/scripts/selfcheck.py --json 2>&1 | tee selfcheck-result.json
+          python3 -c "
+          import json, sys
+          with open('selfcheck-result.json') as f:
+              data = json.load(f)
+          dead = [f for f in data['findings'] if 'wikilink' in f.get('area','').lower() or 'index-sync' in f.get('area','').lower()]
+          if dead:
+              print(f'Found {len(dead)} wikilink/index issues:')
+              for d in dead:
+                  print(f'  [{d[\"level\"]}] {d[\"area\"]}: {d[\"message\"]}')
+              # index-sync warnings about page count mismatches may indicate missing/extra pages
+              # but only FAIL-level issues should block CI (selfcheck already handles this)
+          else:
+              print('No wikilink issues found.')
+          "
+
+  large-files:
+    name: Large File Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for files over 10MB
+        run: |
+          echo "Scanning for files > 10MB..."
+          large=$(find . -type f -size +10M -not -path "./.git/*" | head -20)
+          if [ -n "$large" ]; then
+            echo "WARNING: Large files found:"
+            echo "$large"
+            echo "Consider using Git LFS or .gitignore for these files."
+          else
+            echo "No files over 10MB found."
+          fi
+
+  gitignore-check:
+    name: .gitignore Integrity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for duplicate rules
+        run: |
+          echo "Checking .gitignore for duplicate entries..."
+          sort .gitignore | uniq -d | while read dup; do
+            if [ -n "$dup" ]; then
+              echo "WARNING: Duplicate entry: $dup"
+            fi
+          done
+          echo "Done."
