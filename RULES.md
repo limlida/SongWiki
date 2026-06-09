@@ -99,3 +99,16 @@
     cp knowledge/templates/<ingest|query|lint>-task.md knowledge/tasks/running/<task-id>.md
     ```
     禁止凭记忆自建。禁止跳过。任务文件 = 执行清单 + boss 进度视图。
+
+## 行号标注（硬规则）
+
+🔴 37. Ingest 建页时每条事实断言必须标注源行号 `^[source-slug:L起始-结束]`。禁止仅凭 grep 估算行号或凭短期记忆填写。
+
+**强制两步验证**：
+```bash
+grep -n "<关键词>" <源文件>          # 步骤1: 定位候选行号
+sed -n 'L起始,L结束p' <源文件>        # 步骤2: 逐行读原文，确认内容匹配
+# 匹配 → 写入 ^[source-slug:L起始-结束]；不匹配 → 扩大范围重搜 → 重复步骤2
+```
+
+跳过步骤 2 直接写入 = 违反本规则。
