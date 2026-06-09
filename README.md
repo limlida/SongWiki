@@ -71,3 +71,6 @@ bash tools/magic-pdf -p <pdf>  # PDF → Markdown
 ## 致谢
 
 方法论源自 **Andrej Karpathy** 的 [llm-wiki.md](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)。Agent 运行在 [OpenClaw](https://github.com/code-yeongyu/oh-my-openagent) 框架上。
+
+<!-- CI test trigger -->
+<!-- CI test trigger -->
