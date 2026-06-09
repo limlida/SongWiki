@@ -53,6 +53,7 @@
 6. ❌ 页面不写 frontmatter 就提交 → ✅ 编译时填满 provenanceState / confidence / aliases / tags / contradictedBy
 7. ❌ 直接覆写 wiki 页面 → ✅ 先写 .tmp → 校验 → rename 原子写入
 8. ❌ Ingest 逐章建新页后不回头更新已建页 → ✅ 每章结束后执行跨章回溯：扫所有已建页面，用本章新内容补充/修正/标记矛盾。KNOWLEDGE.md Step 6 不是可选的。
+9. ❌ 凭记忆自建任务列表 → ✅ 必须 `cp templates/ingest-task.md tasks/running/<id>.md`，逐项填写占位符。自建必然漏项。
 
 ---
 

@@ -135,7 +135,7 @@ sources/  ──→ entities/  ──→ concepts/  ──→ syntheses/
 > 🔴 **Ingest 禁止子 agent。** 子 agent（sessions_spawn）彼此隔离，不知其他页面 slug，无法维护交叉引用和 [[wikilinks]]。所有页面必须由主 agent 逐页顺序创建，边建边加 wikilinks，保证一致性。
 > 🔴 **原子写入。** 所有 wiki 页面写入必须两步：先写 page.md.tmp → 校验（frontmatter 可解析 + body ≥ 50 字）→ rename 到 page.md。禁止直接覆写目标文件。
 
-**执行前：从模板创建任务。** 使用 `knowledge/templates/ingest-task.md` → 写入 `knowledge/tasks/running/<ingest-task-id>.md`。所有步骤预置为 checkbox，逐条执行 → 逐条 ✔。任务文件 = 你的执行清单 + boss 的进度视图。
+**执行前：从模板创建任务。** 使用 `cp knowledge/templates/ingest-task.md knowledge/tasks/running/<task-id>.md`，逐项填写 `<...>` 占位符。禁止凭记忆自建任务列表——自建必然漏项。一次 Ingest 一个任务文件，跟输入是章节还是整本书无关。
 
 1. **来源摘要**：在 sources/ 创建或更新摘要页（标注背景与偏见、来源等级）
 2. **报告关键发现**：读完源全文后，向 boss 报告发现——「我读完了。核心要点是...」「这些和你已有的 X、Y 页面相关」「以下是我将要创建/更新的页面清单」。报告后**不等确认、直接执行**页面创建。Boss 看到报告后可以给方向（"多强调 X""注意关联 Y""A 和 B 应该合成一页"），但这些是追加指令，不是否决权。**提取范围不可缩小**——Step 3 的「不筛选不设阈值」不允许被 Step 2 架空。
@@ -145,9 +145,10 @@ sources/  ──→ entities/  ──→ concepts/  ──→ syntheses/
 6. **刷新已有页**：每提到已有实体/概念时，回头更新对应页面的内容、来源和引用。同上，原子写入。
 7. **强制链接**：新建/更新的页面，至少按 RULES.md §wikilink 最低阈值包含 [[WikiLinks]]：entity ≥ 1 / concept ≥ 2 / synthesis ≥ 3 / source ≥ 0。
 8. **更新索引**：更新 wiki/index.md（每次新建或修改页面后立即反映）
-9. **追加日志**：追加 wiki/log.md（格式：`## [YYYY-MM-DD] ingest | 来源标题 — 全量提取 N 页（E: x / C: y / S: z）`）
-10. **更新大纲**：每完成一个源后，重写 wiki/overview.md
-11. **提交**：git commit：`ingest: <来源标题> — 全量提取 <N> pages`
+9. **追加日志**：追加 wiki/log.md
+10. **重生成 MOC**：`python3 tools/gen_moc.py`（零 LLM 参与）
+11. **更新大纲**：每完成一个源后，重写 wiki/overview.md
+12. **提交**：git commit
 
 > **不筛选、不评分、不设阈值。** 所有实体和概念一律建页。质量由日后的 Lint 审计负责——现在不删。先让知识库自然生长，跑一段时间，积累足够数据后再回头设计 Lint 清理规则。
 >
