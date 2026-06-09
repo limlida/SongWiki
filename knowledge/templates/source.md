@@ -1,25 +1,38 @@
 ---
-id: src-<slug>
-title: <来源标题>
-type: primary | secondary | unverified
-domain: <领域>
-source_file: <raw 中的路径>
+title: "<来源标题>"
+type: source
+domain: "<领域>"
+sources: []
+source_count: 0
+source_level: 一手
+source_level_reason: "<一句话理由>"
+background_bias: "<成书背景与潜在偏见>"
+status: draft
+provenanceState: extracted
+confidence: 1.0
+aliases: []
+contradictedBy: []
+tags: []
+summary: "<一句话摘要>"
+last_verified: YYYY-MM-DD
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
+related: []
 ---
 
 # <来源标题>
 
-## 来源信息
-- 作者/出处：
-- 出版/发布日期：
-- 类型：一手 / 二手 / 待验证
+## 基本信息
+- 作者：
+- 年代：
+- 类型：专著 / 论文 / 网页 / 文档 / 聊天记录
+- 文件：`knowledge/raw/...`
 
-## 摘要
-<2-4 句话概括核心内容>
+## 内容摘要
 
-## 评分理由
-<一句话说明为什么是这个等级>
+## 关键事实
 
-## 与知识页的关联
-- [[page-xxx]]：<关联说明>
+## 限制与偏见
+
+## 产出页面清单
+（每次 Ingest 后更新）

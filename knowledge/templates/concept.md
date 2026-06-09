@@ -1,8 +1,8 @@
 ---
-title: "<页面标题>"
-type: source | entity | concept | synthesis
-domain: "<所属领域，如 陶瓷史>"
-sources: ["src-slug"]
+title: "<概念名称>"
+type: concept
+domain: "<领域>"
+sources: []
 source_count: 0
 status: draft
 provenanceState: extracted
@@ -17,18 +17,18 @@ updated: YYYY-MM-DD
 related: []
 ---
 
-# <标题>
+# <概念名称>
 
 ## 概述
-一句话说清这是什么。
+一句话说清这是什么抽象模式/思想/制度/技术。
 
 ## 核心内容
+
+## 具体案例
+- [[entities/xxx]]：<关联说明>
 
 ## 来源
 - [[sources/xxx]]（一手）：<具体出处>
 
 ## 关联页面
-- [[entities/xxx]]：<关联说明>
-
-## 限制与争议
-- 标注矛盾、版本差异、覆盖盲区。
+- [[concepts/xxx]]：<关联说明>

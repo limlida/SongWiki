@@ -99,42 +99,28 @@ sources/  ──→ entities/  ──→ concepts/  ──→ syntheses/
 
 ## 知识页模板
 
-```yaml
----
-title: <页面标题>
-type: source | entity | concept | synthesis
-domain: <所属领域，如 陶瓷史>
-sources: [src-xxx, src-yyy]   # 贡献了内容的来源页路径
-source_count: <N>              # 来源数量（entity ≤1 则 [孤证警告]）
-status: draft | reviewed | verified
-confidence: high | medium | low
-last_verified: YYYY-MM-DD
-created: YYYY-MM-DD
-updated: YYYY-MM-DD
-tags: [tag1, tag2]
-related: [page-a, page-b]     # 密切关联但不一定有 wikilink 的页面
----
+模板文件位于 `knowledge/templates/`，按页面类型选用。各模板 frontmatter 字段统一，差异只在 body 结构。
 
-# <标题>
+| 模板文件 | 适用类型 | body 结构 |
+|----------|---------|-----------|
+| `templates/source.md` | source | 基本信息 + 内容摘要 + 关键事实 + 限制与偏见 + 产出页面清单 |
+| `templates/entity.md` | entity | 概述 + 核心内容 + 来源 + 史料争议 + 关联页面 |
+| `templates/concept.md` | concept | 概述 + 核心内容 + 具体案例 + 来源 + 关联页面 |
+| `templates/synthesis.md` | synthesis | 问题界定 + 结论等级 + 核心回答 + 依据链 + 限制与反例 + 缺口与下一步 |
 
-## 概述
-一句话说清这是什么。
+**所有模板共享的 frontmatter 字段**（详见 `templates/entry.md`）：
+`title` / `type` / `domain` / `sources` / `source_count` / `status` / `provenanceState` / `confidence` / `aliases` / `contradictedBy` / `tags` / `summary` / `last_verified` / `created` / `updated` / `related`
 
-## 核心内容
-结构化知识。每次加新源在此补充、修正或标注矛盾。
+### 关键字段说明
 
-## 来源
-- [[sources/xxx]]（一手）：<具体出处>
-- [[sources/yyy]]（二手）：<具体出处>
-
-## 关联页面
-- [[entities/xxx]]：<关联说明>
-- [[concepts/xxx]]：<关联说明>
-
-## 限制与争议
-- 标注矛盾、版本差异、覆盖盲区。
-- 若为 entity 且有史料冲突，在此设 `### 史料争议` 子节。
-```
+| 字段 | 必填 | 说明 |
+|------|------|------|
+| `provenanceState` | 必填 | `extracted`（直提）\| `merged`（多源合并）\| `inferred`（LLM 推断）\| `ambiguous`（源冲突） |
+| `confidence` | 必填 | 0-1 数值。单源自动 ≤ 0.5 |
+| `aliases` | 必填 | 同义词列表，防重复建页 |
+| `contradictedBy` | 发现时填 | `[{slug, reason}]`，Lint 规则 #10 报告 |
+| `tags` | 必填 | 维度前缀格式：`时代/宋代`、`地区/河北`、`材料/瓷` 等。详见 §MOC |
+| `summary` | 必填 | 一句话摘要，Lint 规则 #7 检查 |
 
 ## 三大操作
 
@@ -146,14 +132,11 @@ related: [page-a, page-b]     # 密切关联但不一定有 wikilink 的页面
 
 1. **来源摘要**：在 sources/ 创建或更新摘要页（标注背景与偏见、来源等级）
 2. **报告关键发现**：读完源全文后，向 boss 报告发现——「我读完了。核心要点是...」「这些和你已有的 X、Y 页面相关」「以下是我将要创建/更新的页面清单」。报告后**不等确认、直接执行**页面创建。Boss 看到报告后可以给方向（"多强调 X""注意关联 Y""A 和 B 应该合成一页"），但这些是追加指令，不是否决权。**提取范围不可缩小**——Step 3 的「不筛选不设阈值」不允许被 Step 2 架空。
-3. **全量实体提取**：逐页逐行逐字阅读源全文。每遇到一个人、地、物、窑口、著作、机构、事件——只要是一个独立存在的东西——立即建 entities/ 页面。不判断「值不值得建」「信息够不够」——先建。信息少就是 stub，信息多就写详。
-4. **全量概念提取**：逐页逐行逐字阅读源全文。每遇到一个跨实体的模式、技术原理、思想、制度——立即建 concepts/ 页面。不判断「抽象度够不够高」——先建。
-11. **过程中产出综合页**：边读边发现跨实体/跨概念的关联和洞察时，即时建 syntheses/ 页面。不等未来 Query 触发。
-11. **刷新已有页**：每提到已有实体/概念时，回头更新对应页面的内容、来源和引用。
-7. **强制链接**：新建/更新的页面，至少包含以下数量的 [[WikiLinks]]：
-   - Wiki 总页数 ≤ 20：至少 1 个
-   - 21-50：至少 2 个
-   - \> 50：至少 3 个
+3. **全量实体提取**：逐页逐行逐字阅读源全文。每遇到一个人、地、物、窑口、著作、机构、事件——只要是一个独立存在的东西——立即建 entities/ 页面。不判断「值不值得建」「信息够不够」——先建。信息少就是 stub，信息多就写详。**原子写入**：所有新页面先写 `.tmp` → 校验 frontmatter + body ≥ 50 字 → rename。详见 RULES.md §知识页写入。
+4. **全量概念提取**：逐页逐行逐字阅读源全文。每遇到一个跨实体的模式、技术原理、思想、制度——立即建 concepts/ 页面。不判断「抽象度够不够高」——先建。同上，原子写入。
+5. **过程中产出综合页**：边读边发现跨实体/跨概念的关联和洞察时，即时建 syntheses/ 页面。不等未来 Query 触发。
+6. **刷新已有页**：每提到已有实体/概念时，回头更新对应页面的内容、来源和引用。同上，原子写入。
+7. **强制链接**：新建/更新的页面，至少按 RULES.md §wikilink 最低阈值包含 [[WikiLinks]]：entity ≥ 1 / concept ≥ 2 / synthesis ≥ 3 / source ≥ 0。
 8. **更新索引**：更新 wiki/index.md（每次新建或修改页面后立即反映）
 9. **追加日志**：追加 wiki/log.md（格式：`## [YYYY-MM-DD] ingest | 来源标题 — 全量提取 N 页（E: x / C: y / S: z）`）
 10. **更新大纲**：每完成一个源后，重写 wiki/overview.md
@@ -174,6 +157,17 @@ related: [page-a, page-b]     # 密切关联但不一定有 wikilink 的页面
 | 标注层（边缘相关） | 只记书名+一句话到 index.md |
 | 待深入层 | 不处理，等需要时再说 |
 
+### 编译时 LLM 标记
+
+每次 Ingest 建页/改页时，LLM 必须填写以下字段——这些是 Lint 机审的输入，不是可选项：
+
+- **provenanceState**（必填）：`extracted`（直接从源提取）| `merged`（多源合并）| `inferred`（LLM 跨源推断）| `ambiguous`（来源冲突）。区分"源里写的"和"LLM 串的"
+- **confidence**（必填）：0-1 数值。编译时约束：单源自动 ≤ 0.5
+- **aliases**（必填）：同义词列表，防重复建页
+- **tags**（必填）：按维度分层打标（时代 / 地区 / 材料 / 技法 / 窑口 / 制度 / 器物 / 人物）。MOC 生成依赖此字段
+- **contradictedBy**（发现时填）：矛盾页面引用列表 `[{slug, reason}]`。编译时 LLM 标记，Lint 规则 #10 报告
+- **幽灵实体**（发现时标记）：源中有但 wiki 未建页的实体 → 记入 source-state.json，待后续 Ingest 补建
+
 ### Query（跨源编织）
 
 1. 读 wiki/index.md 定位相关页面
@@ -185,24 +179,46 @@ related: [page-a, page-b]     # 密切关联但不一定有 wikilink 的页面
 
 **回答回填**：综合 ≥3 页且形成新洞察 → 归档为 syntheses/ 页面。这使探索的成果不消失在聊天记录里，持续复利。
 
-### Lint（认知审计）
+### Lint（机审 13 条规则）
 
-不只是修死链——是对自身知识的诚实检查。七维审计：
+核心原则：**编译时 LLM 标记，Lint 时只机审报告。Lint 不发现新问题，只报告已标记问题。**
 
-- **新鲜度**：status:verified + last_verified > 90 天 → 标记为 stale
-- **暗概念**：[[wikilinks]] 在 ≥3 页被引用但无独立页 → 提议建新页
-- **幽灵实体**：重新扫读所有 sources/ 页面，从原始来源中提取尚未建页的人、地、物、窑口、著作等实体。即使当前信息量不大，也先建 entities/ 锚点页占位，确保未来新来源能用 WikiLinks 挂上。这是为了弥补 Ingest 逐源处理时容易漏掉的跨页实体——不依赖人脸记忆，全交给 Lint 扫描
-- **矛盾**：列出所有冲突声明对（entities/ 中 ## 史料争议，concepts/ 中相反结论）— 不消解，只暴露
-- **断链 / 孤立页**：未被任何 synthesis 或 concept 引用的 entity → 标记
-- **覆盖报告**：查询频率 vs 源分布，识别薄弱领域
-- **缺口**：源中提及但 Wiki 无覆盖的主题
-- **可疑高置信度**：confidence:high + source_count:1 → 标记审查
+#### 13 条机审规则
+
+| # | 规则 | 严重度 | 扣分 | 核心逻辑 | 阶段 |
+|---|------|--------|------|---------|------|
+| 1 | missing-frontmatter | error | -4 | 不以 `---` 开头 | 1 |
+| 2 | broken-wikilink | error | -4 | `[[...]]` slug 不在全库页面集合中 | 1 |
+| 3 | broken-citation | error | -4 | `^[source:行号]` 源文件不存在或行号越界 | 2 |
+| 4 | malformed-claim-citation | error | -4 | `^[...]` 空条目/含`..`/行号非法 | 2 |
+| 5 | duplicate-concept | error | -4 | title 归一化重复 + slug 编辑距离 < 3 | 1 |
+| 6 | empty-page | warning | -1 | body < 50 字符 | 1 |
+| 7 | missing-summary | warning | -1 | frontmatter.summary 缺失 | 2 |
+| 8 | orphaned-page | warning | -1 | backlinks = 0（反向引用计数） | 1 |
+| 9 | low-confidence | warning | -1 | frontmatter.confidence < 0.5 | 1 |
+| 10 | contradicted-page | warning | -2 | frontmatter.contradictedBy 非空（编译时标记） | 3 |
+| 11 | schema-cross-links | warning | -1 | wikilink 数 < pageKind 最小阈值 | 1 |
+| 12 | excess-inferred-paragraphs | warning | -1 | 无 `^[...]` 引用的 prose 段落 > 2 | 2 |
+| 13 | dark-concepts | warning | -1 | [[wikilinks]] 被 ≥3 页引用但无独立页 | 1 |
+
+**wikilink 最小阈值（#11 依据）**：
+- entity ≥ 1（至少引用一个 source）
+- concept ≥ 2（至少挂两个 entity 案例）
+- synthesis ≥ 3（跨域论述需要更多证据链）
+- source 页面无最低要求（源页面是被引用对象，本身不需引其他页面）
+
+**健康分**：`health_score = max(0, 100 - Σ扣分)`，error -4/条，contradicted -2/条，其他 warning -1/条。
+
+**分阶段 rollout**：
+- **阶段 1**（8 条：1/2/5/6/8/9/11/13）— 基础结构检查
+- **阶段 2**（4 条：3/4/7/12）— 引用格式检查（需 `^[source:行号]` 格式）
+- **阶段 3**（1 条：10）— 矛盾标记检查（需 contradictedBy 字段）
 
 结果写入 wiki/log.md。LLM 主动提议修复方案，人决策。
 
-### Lint 自动删减规则
+### Lint 处理建议
 
-以下规则定义 Lint 在发现低质量页面时，哪些可以自动执行、哪些必须报告等人决策。
+以下规则为 Lint 报告提供处理建议。**所有操作均为报告建议，不自动执行。** 删除/合并/降级必须经人确认（RULES §11）。
 
 #### 页面度量指标
 
@@ -220,32 +236,32 @@ Lint 为每个页面计算以下指标作为判定依据：
 
 ##### entities/（客观实体）
 
-| 条件 | 动作 | 自动化 |
-|------|------|--------|
-| content_size < 80 字 + backlinks = 0 | **删除**。纯垃圾 stub，无人引用。 | ✅ 自动执行 |
-| content_size < 80 字 + backlinks = 1-2 | **合并**。将内容沉入引用它的页面末尾 `## 关联实体` 节，然后删除本页。 | ✅ 自动执行 |
-| content_size < 80 字 + backlinks ≥ 3 | **保留桩页**。说明这个实体虽信息少但被多处引用，删不起。打上 `[待填充]` 标记，报告给人。 | ❌ 仅报告 |
-| backlinks = 0 + age_days > 30 | **标记孤立**。无人引用的老页面，报告建议删除或追问是否有意保留。 | ❌ 仅报告 |
-| source_count = 1 + confidence = high | **降置信度**。单源撑不起 high，自动降为 medium。 | ✅ 自动执行 |
+| 条件 | 建议动作 |
+|------|---------|
+| content_size < 80 字 + backlinks = 0 | **建议删除**。纯垃圾 stub，无人引用。 |
+| content_size < 80 字 + backlinks = 1-2 | **建议合并**。将内容沉入引用它的页面末尾 `## 关联实体` 节，然后删除本页。 |
+| content_size < 80 字 + backlinks ≥ 3 | **保留桩页**。信息虽少但被多处引用，打上 `[待填充]` 标记。 |
+| backlinks = 0 + age_days > 30 | **标记孤立**。无人引用的老页面，追问是否有意保留。 |
+| source_count = 1 + confidence > 0.5 | **建议降级**。单源撑不起 > 0.5，降为 0.5。 |
 
 ##### concepts/（抽象概念）
 
-| 条件 | 动作 | 自动化 |
-|------|------|--------|
-| outlinks_count < 2 | **标记支撑不足**。概念页必须挂至少 2 个 entity 案例。 | ❌ 仅报告 |
-| backlinks = 0 + age_days > 60 | **标记未使用**。无任何 synthesis 引用的概念，可能不成立。 | ❌ 仅报告 |
-| content_size < 150 字 | **标记过薄**。概念页需要足够的抽象论述。 | ❌ 仅报告 |
+| 条件 | 建议动作 |
+|------|---------|
+| outlinks_count < 2 | **标记支撑不足**。概念页必须挂至少 2 个 entity 案例。 |
+| backlinks = 0 + age_days > 60 | **标记未使用**。无任何 synthesis 引用的概念，可能不成立。 |
+| content_size < 150 字 | **标记过薄**。概念页需要足够的抽象论述。 |
 
 ##### syntheses/（综合论述）
 
-| 条件 | 动作 | 自动化 |
-|------|------|--------|
-| content_size < 200 字 | **标记过薄**。综合论述需要足够的论证篇幅。 | ❌ 仅报告 |
-| 所有被引用的 entities/concepts 已不存在 | **级联删除**。底层证据全没了，论述悬空。 | ✅ 自动执行 |
+| 条件 | 建议动作 |
+|------|---------|
+| content_size < 200 字 | **标记过薄**。综合论述需要足够的论证篇幅。 |
+| 所有被引用的 entities/concepts 已不存在 | **建议删除**。底层证据全没了，论述悬空。 |
 
 #### 合并操作细则
 
-当 entity 合并入引用页时：
+（人确认合并后执行）
 
 1. 在目标页末尾创建 `## 关联实体` 节（如不存在）
 2. 追加子节：`### 实体名` + entity 原文内容
@@ -255,7 +271,7 @@ Lint 为每个页面计算以下指标作为判定依据：
 
 #### 删除操作的 WikiLinks 修复
 
-删除页面 X 时，执行三步修复：
+（人确认删除后执行）
 
 ```text
 1. 扫描：grep -rl "[[entities/X]]" wiki/ → 得到所有引用者列表
@@ -267,29 +283,32 @@ Lint 为每个页面计算以下指标作为判定依据：
 - 如果引用上下文是「据 [[entities/张三]] 记载」→ 保留「据张三记载」，去掉链接
 - 如果引用上下文是「参见 [[entities/张三]]」→ 删除整行
 
-#### 自动化边界
+## MOC（Map of Content）
 
-| 可自动执行 | 必须报告等人决策 |
-|-----------|-----------------|
-| 无人引用的纯垃圾 stub 删除 | 有引用的 stub 是删还是留 |
-| 单源高置信度 → 降级 | 两个概念是否应该合并 |
-| 级联删除（证据全灭的 synthesis） | 概念是否"不够格" |
-| 合并后自动修复 WikiLinks | 合并目标选哪个页面 |
-| source_count 修正 | 标记为"待填充"但仍保留 |
+tag 交叉索引，与 index.md（四文件夹扁平列举）互补。每次 Ingest 后由脚本全量重生成，零 LLM 参与。
 
-规则：自动执行的操作在 Lint 报告中作为"已完成"列出，人不需逐条审批，但可回滚（git revert）。
+**生成方式**：读取所有 wiki 页面 frontmatter.tags → 按维度分组 → 组内字母排序 → 输出 `wiki/MOC.md`。
 
-#### 自动清理管道
+### tag 维度分层
 
-```text
-每周 Lint 执行：
-  1. 全量扫描 → 为每个页面计算五项指标
-  2. 按判定矩阵分类：可自动执行的 → 立即执行；需人工的 → 列入报告
-  3. 执行自动修复：删除/合并 + WikiLinks 修复 + index.md 更新
-  4. 追加 log.md："lint: 自动清理 N 页（删除 X / 合并 Y / 降级 Z）"
-  5. git commit
-  6. 推送报告：{自动执行摘要} + {待决策清单}
-```
+tags 按以下维度分层打标，同概念归一化：
+
+| 维度 | 示例值 |
+|------|--------|
+| 时代 | 宋代、元代、明代、清代 |
+| 地区 | 河北、浙江、江西、汴京 |
+| 材料 | 瓷、陶、紫砂、釉 |
+| 技法 | 匣钵装烧、还原焰、覆烧 |
+| 窑口 | 汝窑、定窑、景德镇窑 |
+| 制度 | 坊市制度、榷场、岁贡 |
+| 器物 | 青花瓷、天目盏、玉壶春瓶 |
+| 人物 | 苏轼、赵佶、有泉 |
+
+### 归一化规则
+
+- **同概念多名字**：统一为一个规范名（如"烧制工艺"/"烧制"/"烧成工艺"→ 归一到 "烧成工艺"），其他写进 aliases
+- **粒度分层**：时代/地区等宏观维度与具体概念不能同级（"宋代"和"冰裂纹"不能同为 tags）
+- **维度不混杂**：每个 tag 带维度前缀（如 `时代/宋代` 而非裸 `宋代`）
 
 ## 来源评分
 

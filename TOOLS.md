@@ -166,6 +166,84 @@ magic-pdf 转换失败？
 
 ---
 
+### magic-pdf 故障记录（2026-06-08）
+
+首次在新环境跑 magic-pdf 时遇到的连续故障链，已全部修复。记录于此，避免重蹈。
+
+#### 1. 模型路径 —— 需创建 /tmp/mineru_models 符号链接
+
+magic-pdf 硬编码 `models_dir=/tmp/mineru_models`，但模型缓存实际在 `~/.cache/mineru_models/opendatalab/PDF-Extract-Kit-1___0/models/`。
+
+**修复：**
+```bash
+mkdir -p /tmp/mineru_models
+for d in ~/.cache/mineru_models/opendatalab/PDF-Extract-Kit-1___0/models/*/; do
+    ln -s "$d" "/tmp/mineru_models/"
+done
+```
+
+> ⚠️ `/tmp/` 重启即清空，WSL 重启后需重新创建。考虑写入启动脚本。
+
+#### 2. magic-pdf.json 配置 —— 默认 LayoutLMv3 需 detectron2
+
+`~/magic-pdf.json` 默认 layout 模型为 `layoutlmv3`，依赖 detectron2。但 detectron2 在 venv_mineru 中未安装，且从源码编译会触发 CUDA 12.0 vs 13.0 不兼容（系统 nvcc 12.0，PyTorch CUDA 13.0）。
+
+**修复：** 切换到 `doclayout_yolo`（YOLOv10 架构，基于 doclayout_yolo 包，不依赖 detectron2）：
+```json
+{
+    "layout-config": { "model": "doclayout_yolo" }
+}
+```
+
+同时将 `device-mode` 从 `cpu` 改为 `cuda`（RTX 5070 12GB）。
+
+#### 3. Python 依赖缺失
+
+venv_mineru 中缺少 magic-pdf 运行时依赖（共 9 个包）：
+
+```bash
+pip install dill shapely pyclipper imgaug lmdb scikit-image opencv-python tabulate termcolor cloudpickle
+```
+
+> 这些包应作为 magic-pdf 的 install_requires，但显然未声明。每次重建 venv 需补装。
+
+#### 4. OCR 模型 —— v3 vs v5 版本不匹配
+
+`models_config.yml` 硬编码 `ch_PP-OCRv3_det_infer.pth`（DB 架构），但模型目录只有 `ch_PP-OCRv5_det_infer.pth`（MobileNetV3 架构，与 v3 的 DB 不兼容）。
+
+**修复：** 用同架构的 `Multilingual_PP-OCRv3_det_infer.pth`（支持中文）替代：
+```bash
+ln -sf Multilingual_PP-OCRv3_det_infer.pth /tmp/mineru_models/OCR/paddleocr_torch/ch_PP-OCRv3_det_infer.pth
+```
+
+#### 5. 表格模型 —— struct_eqtable 模块缺失
+
+`~/magic-pdf.json` 中 `table-config.model` 设为 `struct_eqtable`，但 `magic_pdf.model.sub_modules.table.structeqtable` 模块不存在。
+
+**修复：** 切到可用的 `rapid_table`：
+```json
+{
+    "table-config": { "model": "rapid_table" }
+}
+```
+
+#### 6. PyTorch 2.6 weights_only 兼容性
+
+PyTorch 2.6 默认 `torch.load(weights_only=True)`，`doclayout_yolo` 的自定义类（`YOLOv10DetectionModel`）不在白名单中。
+
+**修复：** 给 `doclayout_yolo/nn/tasks.py:753` 加 `weights_only=False`：
+```python
+ckpt = torch.load(file, map_location="cpu", weights_only=False)
+```
+
+#### 7. CUDA 12.0 vs 13.0 —— 编译场景才影响
+
+PyTorch 用 CUDA 13.0 编译，系统 nvcc 是 CUDA 12.0。RTX 5070（Blackwell SM12.0）的 PyTorch 推理不受影响（vLLM 正常），但**编译 C++ 扩展**（如 detectron2）时需要匹配版本的 nvcc。切换到 doclayout_yolo 后绕过了此问题。
+
+> 若将来需要安装需编译的包：需安装 CUDA 13.0 toolkit（sudo 操作）或直接找预编译 wheel。
+
+---
+
 ## 转换成品目录
 
 `knowledge/converted/mineru/<task-id>/` — 一次转换任务一个子目录，不混放。

@@ -1,22 +1,19 @@
 ---
-domain: <领域名>
-description: <一句话描述>
-scope: <适用范围>
-source_types: [primary, secondary, web, chat, image]
-key_terms: [<术语1>, <术语2>]
+domain: "<领域名称>"
+description: "<一句话描述>"
+status: active | dormant
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 ---
 
-# <领域名>
+# <领域名称>
 
-## 概述
-<领域描述>
+## 范围
+该领域覆盖哪些主题。
 
-## 关键来源
-- <来源A>（一手）：<说明>
-- <来源B>（二手）：<说明>
+## 关键页面
+- [[sources/xxx]]
+- [[entities/xxx]]
+- [[concepts/xxx]]
 
-## 索引入口
-- 知识页：wiki/pages/
-- 来源摘要：sources/
+## 覆盖盲区

@@ -13,7 +13,7 @@
 🟡 4. 结论按强度表达：直接依据支持 > 可以合理推断 > 仅能推测 > 暂无足够依据。
 🟡 5. 不得把单一领域、版本、时间、平台、场景或样本泛化为整体结论。
 🔴 6. 证据不足时必须说「不足以判断」，不得编造。
-🟡 7. 回答必须包含：问题界定、结论等级、依据链、限制与反例、缺口与下一步。
+🟡 7. 回答必须包含：问题界定、结论等级、依据链、限制与反例、缺口与下一步、意外发现（如有）。
 🟡 8. 有沉淀价值的回答，必须写回 wiki（新建 synthesis 页或更新已有 concept 页）。
 🔴 9. 主动发现的每个断言必须能回溯到至少一个 Wiki 页面。凭空编造是底线。
 🔴 10. 回答领域问题前，必须先读 wiki。web_search 是 wiki 用尽之后的补充手段，不是第一本能。禁止绕过 wiki 直接搜 web。查询流程：读 index.md → 读相关 wiki 页面 → wiki 不足以回答时才搜 web → web 来源必须标注 🌐 且置信度 low。
@@ -39,7 +39,7 @@
 ## 飞书前台回复（硬规则）
 
 🟢 20. 处理飞书消息时，必须先判断耗时。>10 秒 → **禁止先调长工具**（web_search、exec、MinerU、OCR、浏览器抓取、大文件读写）。
-21. >10 秒时，**本轮第一条发给用户的消息必须是任务回执**：
+🟢 21. >10 秒时，**本轮第一条发给用户的消息必须是任务回执**：
 
     ```
     已创建任务：<task-id>
@@ -58,7 +58,7 @@
 🟡 26. 知识库的原子单元是知识页，存放于 wiki/{sources,entities,concepts,syntheses}/ 四个文件夹中。一主题一页，持续更新。严禁在 wiki/ 根目录创建知识页。
 🟡 27. 每次收录新来源时，必须更新所有受影响的已有页面，不得只建新页。
 🟢 28. 领域说明（domains/）为可选元数据，不作为入库门槛。
-🟡 29. Lint 应定期触发，至少检查新鲜度、暗概念、矛盾、断链、孤立页、覆盖报告、可疑高置信度七项。结果写入 wiki/log.md。
+🟡 29. Lint 应定期触发，按 KNOWLEDGE.md §Lint 的 13 条机审规则执行。结果写入 wiki/log.md。
 🔴 30. LLM 不能自行修改 Schema 文件（AGENTS/KNOWLEDGE/SOUL/RULES/LARK/TOOLS）。必须提议 → 确认 → 执行。
 
 ## sudo 权限
@@ -104,3 +104,15 @@
     3. Boss 逐条审定确认 → 方可从 web-buffer 迁移到 wiki/ 对应分类
     4. 未经审定的 web 内容留在 web-buffer，不得被 wiki 页面引用
     5. 已在 wiki/ 中的 web 混合页面（如 瓷器鉴定检查清单）→ 下次 Lint 时将 web 部分剥离到 web-buffer/，wiki 页面只保留 ✅wiki 来源部分
+
+## 知识页写入（硬规则）
+
+🔴 36. 所有 wiki 页面写入必须两步：先写 page.md.tmp → 校验（frontmatter 可解析 + body ≥ 50 字）→ rename 到 page.md。禁止直接覆写目标文件。
+
+## Ingest 编译时标记（硬规则）
+
+🔴 37. 编译时 LLM 标记，Lint 时只机审报告。Lint 不发现新问题，只报告已标记问题。Ingest 时 LLM 必须填满 frontmatter 必填字段（provenanceState / aliases / confidence / tags），发现矛盾时填 contradictedBy。Lint 只校验不生成。
+
+## wikilink 最低阈值
+
+🟡 38. 知识页 wikilink 最低数量：entity ≥ 1（至少引用一个 source）、concept ≥ 2（至少挂两个 entity 案例）、synthesis ≥ 3（跨域论述需要更多证据链）、source 页面无最低要求（源页面是被引用对象，本身不需引其他页面）。
