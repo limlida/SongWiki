@@ -55,11 +55,6 @@
 
 ## 知识库规则
 
-🟡 26. 知识库的原子单元是知识页，存放于 wiki/{sources,entities,concepts,syntheses}/ 四个文件夹中。一主题一页，持续更新。严禁在 wiki/ 根目录创建知识页。
-🟡 27. 每次收录新来源时，必须更新所有受影响的已有页面，不得只建新页。
-🔴 28. Ingest 阶段禁止使用子 agent（sessions_spawn）并发建页。子 agent 彼此隔离，不知其他页面 slug，无法维护交叉引用和 [[wikilinks]]。所有页面必须由主 agent 逐页顺序创建，边建边加 wikilinks，保证一致性。
-🟢 29. 领域说明（domains/）为可选元数据，不作为入库门槛。
-🟡 30. Lint 应定期触发，按 KNOWLEDGE.md §Lint 的 13 条机审规则执行。结果写入 wiki/log.md。
 🔴 31. LLM 不能自行修改 Schema 文件（AGENTS/KNOWLEDGE/SOUL/RULES/LARK/TOOLS）。必须提议 → 确认 → 执行。
 
 ## sudo 权限
@@ -96,24 +91,3 @@
     - ❌ 无出处：禁止输出该断言，改说「不知道」
     回答末尾附汇总：「以上断言 X 条有出处 / Y 条为推测 / Z 条未知已删除」。
     禁止因排版美观或简洁而省略标注。遗漏一条事实断言即视为违反本规则。
-
-## web 来源入库（硬规则）
-
-🔴 36. web_search / web_fetch / 浏览器抓取获取的内容，**禁止在 boss 审定前写入 `wiki/` 目录**。所有 web 内容必须写入 `knowledge/web-buffer/`，与 wiki 物理隔离。流程：
-    1. 搜到 web 内容 → 写入 `knowledge/web-buffer/<topic>.md`，标注 🌐 来源 URL + 采集日期
-    2. 报告 boss：「以下 web 内容待审定：<摘要>」
-    3. Boss 逐条审定确认 → 方可从 web-buffer 迁移到 wiki/ 对应分类
-    4. 未经审定的 web 内容留在 web-buffer，不得被 wiki 页面引用
-    5. 已在 wiki/ 中的 web 混合页面（如 瓷器鉴定检查清单）→ 下次 Lint 时将 web 部分剥离到 web-buffer/，wiki 页面只保留 ✅wiki 来源部分
-
-## 知识页写入（硬规则）
-
-🔴 37. 所有 wiki 页面写入必须两步：先写 page.md.tmp → 校验（frontmatter 可解析 + body ≥ 50 字）→ rename 到 page.md。禁止直接覆写目标文件。
-
-## Ingest 编译时标记（硬规则）
-
-🔴 38. 编译时 LLM 标记，Lint 时只机审报告。Lint 不发现新问题，只报告已标记问题。Ingest 时 LLM 必须填满 frontmatter 必填字段（provenanceState / aliases / confidence / tags），发现矛盾时填 contradictedBy。Lint 只校验不生成。
-
-## wikilink 最低阈值
-
-🟡 39. 知识页 wikilink 最低数量：entity ≥ 1（至少引用一个 source）、concept ≥ 2（至少挂两个 entity 案例）、synthesis ≥ 3（跨域论述需要更多证据链）、source 页面无最低要求（源页面是被引用对象，本身不需引其他页面）。

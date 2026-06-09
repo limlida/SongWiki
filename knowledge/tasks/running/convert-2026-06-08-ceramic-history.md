@@ -44,8 +44,9 @@
 ## Step 4: 报告
 
 - [x] 质量报告已发给 boss（见本轮消息）
-- [ ] boss 确认进 Ingest
-- [ ] 已追加 `tasks/index.md`：running:Step4
+- [x] boss 确认进 Ingest（2026-06-09）
+- [x] 已追加 `tasks/index.md`：running:Step4
+- [ ] Ingest: 建 source 页
 
 ## 收尾
 
