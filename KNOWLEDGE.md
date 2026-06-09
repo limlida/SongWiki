@@ -141,14 +141,7 @@ sources/  ──→ entities/  ──→ concepts/  ──→ syntheses/
 > # 匹配 → 写入 ^[source-slug:L起始-结束]；不匹配 → 扩大范围重搜
 > ```
 
-**执行前：从模板创建任务。** 必须逐字拷贝模板，禁止凭记忆自建：
-
-```bash
-cp knowledge/templates/ingest-task.md knowledge/tasks/running/<task-id>.md
-# 然后逐项填写 <...> 占位符
-```
-
-一次 Ingest 一个任务文件，跟输入是章节还是整本书无关。
+**执行前：从模板创建任务。** 见 RULES §36。
 
 1. **来源摘要**：在 sources/ 创建或更新摘要页（标注背景与偏见、来源等级）
 2. **报告关键发现**：读完源全文后，向 boss 报告发现——「我读完了。核心要点是...」「这些和你已有的 X、Y 页面相关」「以下是我将要创建/更新的页面清单」。报告后**不等确认、直接执行**页面创建。Boss 看到报告后可以给方向（"多强调 X""注意关联 Y""A 和 B 应该合成一页"），但这些是追加指令，不是否决权。**提取范围不可缩小**——Step 3 的「不筛选不设阈值」不允许被 Step 2 架空。
@@ -212,7 +205,7 @@ cp knowledge/templates/ingest-task.md knowledge/tasks/running/<task-id>.md
 
 ### Query（跨源编织）
 
-**执行前：从模板创建任务。** 使用 `knowledge/templates/query-task.md` → 写入 `knowledge/tasks/running/<query-task-id>.md`。
+**执行前：从模板创建任务。** 见 RULES §36。
 
 1. 读 wiki/index.md 定位相关页面
 2. 读 wiki/overview.md 获得高层知识全景
@@ -225,7 +218,7 @@ cp knowledge/templates/ingest-task.md knowledge/tasks/running/<task-id>.md
 
 ### Lint（机审 13 条规则）
 
-**执行前：从模板创建任务。** 使用 `knowledge/templates/lint-task.md` → 写入 `knowledge/tasks/running/<lint-task-id>.md`。
+**执行前：从模板创建任务。** 见 RULES §36。
 
 核心原则：**编译时 LLM 标记，Lint 时只机审报告。Lint 不发现新问题，只报告已标记问题。**
 

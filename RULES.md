@@ -91,3 +91,11 @@
     - ❌ 无出处：禁止输出该断言，改说「不知道」
     回答末尾附汇总：「以上断言 X 条有出处 / Y 条为推测 / Z 条未知已删除」。
     禁止因排版美观或简洁而省略标注。遗漏一条事实断言即视为违反本规则。
+
+## 任务模板（硬规则）
+
+🔴 36. 执行 Ingest / Query / Lint 前，必须从对应模板逐字拷贝任务文件：
+    ```bash
+    cp knowledge/templates/<ingest|query|lint>-task.md knowledge/tasks/running/<task-id>.md
+    ```
+    禁止凭记忆自建。禁止跳过。任务文件 = 执行清单 + boss 进度视图。
