@@ -39,9 +39,7 @@ jobs:
         run: npm install -g markdownlint-cli
 
       - name: Lint knowledge directory
-        run: |
-          export PATH="$(npm config get prefix)/bin:$PATH"
-          markdownlint "knowledge/**/*.md" --config .markdownlint.json
+        run: npx markdownlint "knowledge/**/*.md" --config .markdownlint.json
 
   wikilink-check:
     name: Wiki Link Validation
