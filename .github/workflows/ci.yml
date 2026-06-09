@@ -35,11 +35,10 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install markdownlint-cli
-        run: npm install -g markdownlint-cli
-
-      - name: Lint knowledge directory
-        run: npx markdownlint "knowledge/**/*.md" --config .markdownlint.json
+      - name: Install & Lint knowledge directory
+        run: |
+          npm install markdownlint-cli
+          ./node_modules/.bin/markdownlint "knowledge/**/*.md" --config .markdownlint.json
 
   wikilink-check:
     name: Wiki Link Validation
