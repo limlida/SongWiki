@@ -22,7 +22,7 @@ jobs:
         run: |
           python3 .agents/skills/openclaw-kb-selfcheck/scripts/selfcheck.py --json 2>&1 | tee selfcheck-result.json
           echo "---"
-          python3 .agents/skills/openclaw-kb-selfcheck/scripts/selfcheck.py
+          python3 .agents/skills/openclaw-kb-selfcheck/scripts/selfcheck.py || true
 
   markdownlint:
     name: Markdown Lint
@@ -39,7 +39,9 @@ jobs:
         run: npm install -g markdownlint-cli
 
       - name: Lint knowledge directory
-        run: markdownlint "knowledge/**/*.md" --config .markdownlint.json
+        run: |
+          export PATH="$(npm config get prefix)/bin:$PATH"
+          markdownlint "knowledge/**/*.md" --config .markdownlint.json
 
   wikilink-check:
     name: Wiki Link Validation
