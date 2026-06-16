@@ -27,8 +27,11 @@
 
 ## 执行方式
 
+当前必须执行 `.tmp → 校验 → rename`。如果校验脚本尚未存在，不得声称已运行脚本；按上方字段逐项手动校验后再 rename。
+
 ```bash
-# 校验脚本（待建：tools/validate-page.sh）
+# 待补工具：tools/validate-page.sh
+# 存在时可用脚本校验；不存在时执行手动校验
 bash tools/validate-page.sh wiki/entities/xxx.md.tmp && \
   mv wiki/entities/xxx.md.tmp wiki/entities/xxx.md
 ```
@@ -36,4 +39,4 @@ bash tools/validate-page.sh wiki/entities/xxx.md.tmp && \
 ## 适用范围
 
 - `wiki/sources/`、`wiki/entities/`、`wiki/concepts/`、`wiki/syntheses/` 下所有 `.md` 页面
-- 不适用于 hub 文件（index.md / log.md / overview.md）——这些是追加/覆写模式
+- 不适用于 hub 文件（index.md / log.md / overview.md / MOC.md）——这些是追加/覆写或脚本生成模式

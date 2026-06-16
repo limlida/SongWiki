@@ -124,20 +124,7 @@ boss 发出 Ingest 指令（或确认新书可以进 Ingest）
 
 ### Query：跨源编织
 
-```text
-用户提问（领域问题）
-  → 🔴 必须先读 wiki/index.md，定位相关页面
-  → 读 wiki 页面（entities + concepts + syntheses）
-  → wiki 足够 → 按专业回答协议输出，断言链接回 wiki 页面
-  → wiki 不足以覆盖 → web_search/web_fetch 补充
-     → web 内容必须标注 🌐 + URL，与 ✅wiki 来源显式区分
-     → web 内容置信度 low，不得作为核心依据
-  → 无直接匹配 → 编织模式：
-       扫描全索引 → 定位碎片页面 → 逐页阅读
-       → 合成答案 + 每个断言标注源页面
-       → 附「缺口与下一步」+「意外发现」
-       → 若综合 ≥3 个页面且有新洞察 → 建议保存为 synthesis 页
-```
+完整检索+降级+编织流程见 RULES.md §10 和 KNOWLEDGE.md §Query。
 
 **硬约束**：
 - 编织出的每个断言必须能回溯到至少一个 Wiki 页面的对应段落。
@@ -147,7 +134,7 @@ boss 发出 Ingest 指令（或确认新书可以进 Ingest）
 
 不只是修死链——是对自身知识的诚实检查：
 - 新鲜度：confidence:high + last_verified > 90 天 → 标记
-- 暗概念：wikilinks 引用 ≥3 次但无独立页 → 提议建新页
+- unmaterialized-term：纯文本术语 ≥3 页出现且未物化为页面/aliases → 候选补页，由 boss 决定
 - 矛盾：列出所有冲突声明对，不消解
 - 断链 / 孤立页
 - 覆盖报告：查询频率 vs 源分布，识别薄弱领域

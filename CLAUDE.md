@@ -140,10 +140,10 @@ sources/     →   entities/   →   concepts/   →   syntheses/
 
 | 文件 | 角色 | 触发更新时机 |
 |------|------|-------------|
-| `wiki/index.md` | 图书馆卡片目录 — 每页一行，按四分类索引 | 每次建/改/删页面 |
+| `wiki/index.md` | 图书馆卡片目录 — 每页一行，按四分类索引 | 每次 Ingest/Lint（`tools/indexgen.py`） |
 | `wiki/log.md` | 航海日志 — 追加只写，`## [YYYY-MM-DD]` 条目 | 每次操作 |
 | `wiki/overview.md` | 书的前言 — 5-10 段知识全景摘要 | 每 5-10 次 Ingest |
-| `wiki/MOC.md` | 话题交叉索引 — 按 tag 分组列出所有页面（待建） | 每次 Ingest（全自动生成） |
+| `wiki/MOC.md` | 话题交叉索引 — 按 tag 分组列出所有页面 | 每次 Ingest/Lint（`tools/gen_moc.py`） |
 | `wiki/source-state.json` | 源→概念→hash 映射，支撑增量编译（待建） | 每次 Ingest（机器维护） |
 
 ### MOC（Map of Content）
@@ -204,12 +204,8 @@ pending → running → done
 **书**：先喂目录建结构页 → 再逐章对话式 Ingest。骨架层书 boss 必须全程参与对话。
 
 ### 3. Query（跨源编织）
-```
-读 index.md → 定位页面 → 读 wiki 页面
-  → wiki 够用 → 按 RULES.md §7 格式回答
-  → wiki 不够 → web_search（最后手段）→ 标 🌐 + URL，置信度 low
-```
-**铁律**：禁止绕过 wiki 直接搜 web。每个断言必须能回溯到 wiki 页面。回答格式：问题界定 → 结论等级 → 核心回答 → 依据链 → 限制与反例 → 缺口与下一步。
+
+完整流程见 RULES.md §10 和 KNOWLEDGE.md §Query。铁律：禁止绕过 wiki 直接搜 web。
 
 ### 4. Lint（机审 + 编译时标记）
 
@@ -240,7 +236,7 @@ pending → running → done
 | 10 | contradicted-page | warning | -2 | frontmatter.contradictedBy 非空（编译时标记） | 3 |
 | 11 | schema-cross-links | warning | -1 | wikilink 数 < pageKind 最小阈值 | 1 |
 | 12 | excess-inferred-paragraphs | warning | -1 | 无 `^[...]` 引用的 prose 段落 > 2 | 2 |
-| 13 | dark-concepts | warning | -1 | [[wikilinks]] 被 ≥3 页引用但无独立页 | 1 |
+| 13 | unmaterialized-term | info | 0 | 普通文本术语在 ≥3 个知识页出现，且不在 slug/title/aliases 中 | 1 |
 
 **wikilink 最小阈值（#11 依据）**：
 - entity ≥ 1（至少引用一个 source）

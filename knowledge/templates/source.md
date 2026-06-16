@@ -7,6 +7,7 @@ source_count: 0
 source_level: 一手
 source_level_reason: "<一句话理由>"
 background_bias: "<成书背景与潜在偏见>"
+converted_path: "knowledge/converted/<tool>/<task-id>/<file>"
 status: draft
 provenanceState: extracted
 confidence: 1.0
