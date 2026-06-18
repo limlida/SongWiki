@@ -32,4 +32,9 @@ openclaw.json
 openclaw.example.json
 memory/
 openspec/
-tools/
+
+# tools/：本机环境 wrapper（magic-pdf / start-vllm 硬编码本机路径）不进仓库，
+# 但纯逻辑、可移植的脚本必须随仓库走——indexgen.py 是 RULES §30a 强依赖的信任锚。
+# 注意：父目录若写 `tools/` 整体排除，git 无法再用 `!` 豁免子文件，故用 `tools/*`。
+tools/*
+!tools/indexgen.py

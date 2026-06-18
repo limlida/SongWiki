@@ -1,6 +1,6 @@
 # 原子写入规则
 
-> 所有 wiki 页面的写入必须遵循此规则。依据 CLAUDE.md——rename 是原子系统调用，不留半截文件。
+> 所有 wiki 页面的写入必须遵循此规则。依据 KNOWLEDGE.md §Ingest——rename 是原子系统调用，不留半截文件。
 
 ## 流程
 
