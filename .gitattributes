@@ -1,0 +1,3 @@
+# 统一换行符为 LF，消除 Windows(Cursor / indexgen.py) 与 WSL/Linux 反复打架的 CRLF 噪音。
+# text=auto 让 git 自动识别文本/二进制；eol=lf 强制文本文件以 LF 存储与检出。
+* text=auto eol=lf
