@@ -3,7 +3,6 @@ title: "<页面标题>"
 type: source | entity | concept | synthesis
 domain: "<所属领域，如 陶瓷史>"
 sources: ["src-slug"]
-source_count: 0
 status: draft
 provenanceState: extracted
 confidence: 0.5
@@ -11,7 +10,6 @@ aliases: []
 contradictedBy: []
 tags: []
 summary: "<一句话摘要>"
-last_verified: YYYY-MM-DD
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 related: []

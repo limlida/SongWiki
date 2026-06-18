@@ -3,7 +3,6 @@ title: "<来源标题>"
 type: source
 domain: "<领域>"
 sources: []
-source_count: 0
 source_level: 一手
 source_level_reason: "<一句话理由>"
 background_bias: "<成书背景与潜在偏见>"
@@ -15,7 +14,6 @@ aliases: []
 contradictedBy: []
 tags: []
 summary: "<一句话摘要>"
-last_verified: YYYY-MM-DD
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 related: []

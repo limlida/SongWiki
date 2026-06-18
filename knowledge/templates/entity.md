@@ -3,7 +3,6 @@ title: "<实体名称>"
 type: entity
 domain: "<领域>"
 sources: []
-source_count: 0
 status: draft
 provenanceState: extracted
 confidence: 0.5
@@ -11,7 +10,6 @@ aliases: []
 contradictedBy: []
 tags: []
 summary: "<一句话摘要>"
-last_verified: YYYY-MM-DD
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 related: []

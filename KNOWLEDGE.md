@@ -114,7 +114,7 @@ sources/  ──→ entities/  ──→ concepts/  ──→ syntheses/
 | `templates/synthesis.md` | synthesis | 问题界定 + 结论等级 + 核心回答 + 依据链 + 限制与反例 + 缺口与下一步 |
 
 **所有模板共享的 frontmatter 字段**（详见 `templates/entry.md`）：
-`title` / `type` / `domain` / `sources` / `source_count` / `status` / `provenanceState` / `confidence` / `aliases` / `contradictedBy` / `tags` / `summary` / `last_verified` / `created` / `updated` / `related`
+`title` / `type` / `domain` / `sources` / `status` / `provenanceState` / `confidence` / `aliases` / `contradictedBy` / `tags` / `summary` / `created` / `updated` / `related`
 
 source 页额外字段：`converted_path`（citation 行号校验使用的不可变证据底本路径）。
 
@@ -365,7 +365,7 @@ Lint 为每个页面计算以下指标作为判定依据：
 | `backlinks_count` | 有多少其他知识页用 [[WikiLinks]] 指向本页 | grep -l 四类知识页 |
 | `outlinks_count` | 本页包含多少 [[WikiLinks]] | 读页计数 |
 | `content_size` | 正文有效字数（不含 frontmatter 和标题） | 读页估算 |
-| `source_count` | frontmatter 中标注的来源数量 | 读 frontmatter |
+| `source_count` | 来源数量（派生指标，非存储字段） | len(frontmatter.sources) |
 | `age_days` | 距创建日期的天数 | created 字段 |
 
 #### 判定矩阵
