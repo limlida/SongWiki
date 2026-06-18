@@ -21,13 +21,14 @@
 🟡 8. 有沉淀价值的回答，必须写回 wiki（新建 synthesis 页或更新已有 concept 页）。
 🔴 9. 主动发现的每个断言必须能回溯到至少一个 Wiki 页面。凭空编造是底线。
 🔴 10. 回答领域问题前，必须先查 wiki。web_search 是 wiki 用尽之后的补充手段，不是第一本能。禁止绕过 wiki 直接搜 web。查询流程：
-    1. `python tools/retrieve.py "<query>" --top 5 --depth 1` 多信号检索定位
-    2. 按 score 降序读 primary pages（优先 exact-title/exact-slug 信号）
-    3. 需要更多上下文时读高分 neighbors
-    4. 无匹配或覆盖不足时扩大检索 `--top 20 --depth 2`
-    5. retrieve.py 不可用时降级为读 index.md → grep 页面
-    6. wiki 不足以回答时才搜 web → web 来源必须标注 🌐 且置信度 low
-    7. 所有以上步骤完成后仍未找到 → 诚实说「wiki 当前无覆盖」，不编造
+    1. 读 knowledge/wiki/index.md（全局目录，含 title/summary/tags），在内存中扫描定位候选页面
+    2. 按匹配度读候选页面全文（优先 title 匹配的精确命中，其次 tags 维度匹配，最后关键词出现）
+    3. 覆盖不足时用 `python tools/retrieve.py "<query>" --top 5 --depth 1` 补充 BM25 检索 + wikilink 图扩展
+    4. 仍不足 → 广检索 `--top 20 --depth 2`
+    5. wiki 不足以回答时才搜 web → web 来源必须标注 🌐 且置信度 low
+    6. 所有以上步骤完成后仍未找到 → 诚实说「wiki 当前无覆盖」，不编造
+
+    > 理由（Karpathy）：index.md 是内容导向的目录——按四分类列出每页的 slug、标题、一句话摘要和 tags。LLM 直接读它能快速定位相关页面，然后钻入阅读。在 ~100 source / 数百页的规模下效果出奇地好，且完全不需要 embedding/RAG 基础设施。
 
 ## 操作安全
 
@@ -88,7 +89,7 @@
 
 🟡 30a. 每次 Ingest 或 Lint 完成后，必须运行 `python tools/indexgen.py` 刷新 index.md，运行 `python tools/gen_moc.py` 刷新 MOC.md。index.md 和 MOC.md 为零 LLM 参与脚本产物，禁止手动编辑——脚本会覆盖。临时笔记/状态标注写在 log.md。
 
-🟢 30b. Embedding store 维护：`python tools/embed.py` 全量重建，`python tools/embed.py --changed slugs.txt` 增量更新。embedding store 过期（新增页面 > 20 个或距离上次构建 > 7 天）时应重建。检索时无 store 自动降级为纯词汇检索，不报错。
+🟢 30b. Embedding store（远期选项，默认不参与查询）：`python tools/embed.py` 全量重建，`python tools/embed.py --changed slugs.txt` 增量更新。embedding store 只在明确需要语义检索且手动 `--semantic` 时启用。Query 的主路径是 index.md → 读候选正文；retrieve.py 做 BM25 词法补充。
 
 ## sudo 权限
 

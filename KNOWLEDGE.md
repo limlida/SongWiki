@@ -363,17 +363,19 @@ sed -n 'L起始,L结束p' <源文件>        # 步骤2: 逐行读原文，确认
 
 **执行前：从模板创建任务。** 见 RULES §27。
 
-1. **精确直达（例外）**：如果用户明确给出实体/概念名，且 slug/title 能唯一匹配现有页面 → 可直接读对应 .md 文件，跳过 `retrieve.py`
-2. **检索定位（默认）**：`python tools/retrieve.py "<user query>" --top 5 --depth 1` 拿到 JSON ContextPack
-3. **读 primary pages**：按 score 降序读 `primary[0..4]` 的 .md 页面全文（优先 exact-title/exact-slug 信号，再 title-match，最后 body-match）
-4. **读 overview**：读 wiki/overview.md 获得高层知识全景（快速了解领域全貌，避免只见树木不见森林）
-5. **图扩展**：如 primary pages 覆盖不足 → 读 `neighbors` 中高分页面 → 扩展上下文
-6. **无匹配降级**：retrieve.py 返回 0 primary → **编织模式**：用 `--top 20 --depth 2` 宽检索 → 逐页读 → 合成（这种情况很少见，通常意味着 query 包含冷僻词或 wiki 有领域空白）
-7. **工具降级**：`retrieve.py` 不可用时，降级为读 `wiki/index.md` → 搜索页面标题/tags → 逐页阅读候选页面
-8. 每个断言必须标注源页面（[[wikilinks]] 形式）
-9. 按专业回答协议输出：问题界定 → 结论等级 → 核心回答 → 依据链 → 限制与反例 → 缺口与下一步 → 意外发现（如有）
+1. **精确直达（例外）**：如果用户明确给出实体/概念名，且 slug/title 能唯一匹配现有页面 → 可直接读对应 .md 文件，跳过后续步骤
+2. **读 index.md（默认主路径）**：读 `knowledge/wiki/index.md`（约 200 行，按四分类列出每页的 slug、标题、summary、tags），在内存中扫描匹配候选页面：
+   - 🔴 最高：title 与 query 关键词匹配
+   - 🟡 中等：tags 维度匹配（如 query 含「宋代」→ 扫描 `时代/宋代` 标签）
+   - 🟢 低：关键词出现在 summary 中
+3. **读候选页面全文**：按优先级逐页 read 对应的 .md 文件
+4. **读 overview**：读 wiki/overview.md 获得高层知识全景
+5. **BM25 补充**：候选覆盖不足时，用 `python tools/retrieve.py "<query>" --top 5 --depth 1` 做 BM25 词法补充 + wikilink 图扩展
+6. **无匹配降级**：扩大检索 `--top 20 --depth 2`
+7. 每个断言必须标注源页面（[[wikilinks]] 形式）
+8. 按专业回答协议输出：问题界定 → 结论等级 → 核心回答 → 依据链 → 限制与反例 → 缺口与下一步 → 意外发现（如有）
 
-> **retrieve.py vs 直接读 index.md**：retrieve.py 提供多信号排序 + 图扩展，比人工 grep index.md 更准确。`reasons` 字段告诉你为什么某页被选中——分数低（< 0.5）且只有 body-match 的页面可能只是碰巧包含 query 词汇，需自行判断相关性。保留直接读 index.md 作为 fallback（当 Python 不可用时）。
+> **为什么 index.md 是主路径**（Karpathy）：index.md 是内容导向的目录——按四分类列出每页的 slug、标题、一句话摘要和 tags。LLM 直接读它能快速定位相关页面，然后钻入阅读。在 ~100 source / 数百页的规模下效果出奇地好，且完全不需要 embedding/RAG 基础设施。`retrieve.py` 保留作为 BM25 词法补充 + wikilink 图扩展工具，在候选不足或需要发现间接关联时使用。embedding store（`tools/embed.py`）作为远期选项，默认不参与查询。
 
 **回答回填**：综合 ≥3 页且形成新洞察 → 归档为 syntheses/ 页面。这使探索的成果不消失在聊天记录里，持续复利。
 
