@@ -40,7 +40,6 @@ knowledge/
 │  ├── index.md      #   [枢纽1] 全局符号表 — 按四分类列出所有页面
 │  ├── log.md        #   [枢纽2] 操作日志 — Append-only，grep-friendly（## [YYYY-MM-DD]）
 │  ├── overview.md   #   [枢纽3] 宏观大纲 — 定期重写的知识全景摘要（5-10 段）
-│  ├── MOC.md        #   [枢纽4] tag 维度交叉索引 — 脚本自动生成
 │  ├── sources/      #   来源摘要（一篇 raw source → 一页，标注背景与偏见）
 │  ├── entities/     #   客观实体（原子级：人/地/事/物/机构/作品）
 │  ├── concepts/     #   抽象概念（跨实体的：模式/思想/制度/技术/风格）
@@ -92,100 +91,16 @@ sources/  ──→ entities/  ──→ concepts/  ──→ syntheses/
 
 每向右一级，抽象度升高，对左级的 [[WikiLinks]] 引用密度增大。
 
-## 四个枢纽文件
+## 三个枢纽文件
 
 | 文件 | 类比 | 内容 | 更新频率 | 用途 |
 |------|------|------|----------|------|
-| index.md | 图书馆卡片目录 | 按四分类列出所有页面 | 每次 Ingest/Lint（`python tools/indexgen.py` 自动生成）| Query fallback 与人工总览；默认检索由 `retrieve.py` 读取索引/图信号 |
+| index.md | 图书馆卡片目录 | 按四分类列出所有页面 | 每次 Ingest/Lint（`python3 tools/indexgen.py` 自动生成）| Query 主路径；LLM 读 index.md 在内存中定位候选页面 |
 | overview.md | 书的前言/导论 | 按主题叙述当前知识全景（5-10 段）| 每 5-10 次 Ingest | 人/LLM 快速了解全貌 |
 | log.md | 航海日志 | 按时间记录每次操作 | 每次操作 | 恢复工作记忆、追溯演化史 |
-| MOC.md | 主题索引 | tag 维度交叉索引 | 每次 Ingest/Lint（`python tools/gen_moc.py` 自动生成）| 按时代/地区/技法等维度浏览 |
 
-> **index.md 和 MOC.md 均为脚本自动生成，零 LLM 参与。** 每次 Ingest 或 Lint 后重新运行对应脚本即可刷新。**严禁手动编辑**这两个文件——脚本会覆盖。临时笔记/状态标注写在 log.md。
+> **index.md 为脚本自动生成，零 LLM 参与。** 每次 Ingest 或 Lint 后重新运行 `python3 tools/indexgen.py` 即可刷新。**严禁手动编辑**——脚本会覆盖。临时笔记/状态标注写在 log.md。
 
-## MOC（Map of Content）
-
-tag 交叉索引，与 index.md（四文件夹扁平列举）互补。每次 Ingest 或 Lint 后由脚本全量重生成，零 LLM 参与。
-
-**生成方式**：读取所有 wiki 页面 frontmatter.tags → 按维度分组 → 组内字母排序 → 输出 `wiki/MOC.md`。
-
-### tag 维度分层
-
-tags 按以下维度分层打标，同概念归一化：
-
-| 维度 | 示例值 |
-|------|--------|
-| 时代 | 宋代、元代、明代、清代 |
-| 地区 | 河北、浙江、江西、汴京 |
-| 材料 | 瓷、陶、紫砂、釉 |
-| 技法 | 匣钵装烧、还原焰、覆烧 |
-| 窑口 | 汝窑、定窑、景德镇窑 |
-| 制度 | 坊市制度、榷场、岁贡 |
-| 器物 | 青花瓷、天目盏、玉壶春瓶 |
-| 人物 | 苏轼、赵佶、有泉 |
-
-### 归一化规则
-
-- **同概念多名字**：统一为一个规范名（如"烧制工艺"/"烧制"/"烧成工艺"→ 归一到 "烧成工艺"），其他写进 aliases
-- **粒度分层**：时代/地区等宏观维度与具体概念不能同级（"宋代"和"冰裂纹"不能同为 tags）
-- **维度不混杂**：每个 tag 带维度前缀（如 `时代/宋代` 而非裸 `宋代`）
-
-## 检索工具（retrieve.py）
-
-仿 [llm-wiki-compiler](https://github.com/atomicstrata/llm-wiki-compiler) 检索架构。多信号排序 + wikilink 图扩展，替代人工 grep index.md。
-
-**调用方式**：
-
-```bash
-# JSON 输出（默认），agent 直接消费
-python tools/retrieve.py "定窑有什么特点" --top 5 --depth 1
-
-# Markdown 输出（人类阅读）
-python tools/retrieve.py "定窑" --format markdown
-
-# 写文件（绕开终端编码问题；必须写入 workspace 内）
-python tools/retrieve.py "宋代 边防" -o knowledge/reports/context-pack.json
-```
-
-**参数**：
-
-| 参数 | 默认 | 说明 |
-|------|------|------|
-| `--top N` | 5 | 返回 primary pages 数量（max 20） |
-| `--depth N` | 1 | 图扩展深度。0=不扩展，1=直连邻居，2=二跳 |
-| `--format json\|markdown` | json | 输出格式 |
-| `--no-neighbors` | off | 禁用 wikilink 图扩展 |
-| `-o PATH` | - | 写入文件（UTF-8），不写 stdout |
-
-**排序信号**（仿 llm-wiki-compiler 权重体系）：
-
-| 信号 | 权重 | 触发条件 |
-|------|------|---------|
-| exact-title | 0.5 | query 与页面 `title` 完全相同（大小写不敏感） |
-| title-match | 0.5 | query 全部 token 出现在 `title` 中 |
-| exact-slug | 0.4 | query 与页面 `slug` 完全相同 |
-| body-match | 0.3 | query 全部 token 出现在 body 中（AND 语义） |
-
-多信号可叠加。score 归一化到 [0, 1]。
-
-**JSON 输出结构**（ContextPack v1）：
-
-```json
-{
-  "version": 1,
-  "prompt": "用户原始 query",
-  "primary": [{ "id": "entities/定窑", "title": "定窑", "type": "entity",
-                 "score": 0.8, "reasons": ["exact-title", "title-match"],
-                 "summary": "...", "snippet": "...", "tags": [...] }],
-  "neighbors": [{ "from": "entities/定窑", "to": "entities/汝窑",
-                   "direction": "outgoing", "distance": 1, "score": 0.53 }],
-  "gaps": [{ "code": "dangling-link", "message": "...", "pageId": "..." }],
-  "warnings": [{ "code": "...", "message": "..." }],
-  "total_pages": 206
-}
-```
-
-**作为 LLM agent 使用**：先跑 `retrieve.py` 拿到 JSON → 读 `primary[0..4]` 的 id 对应的 .md 页面 → 需要扩展上下文时读高分 `neighbors` → 合成回答。`score` 和 `reasons` 让你知道为什么某页被选中——**优先相信 exact-title 和 exact-slug 信号，其次 title-match，最后 body-match。** 分数低的页面可能只是碰巧包含 query 词汇，需自行判断相关性。
 
 ## 知识页模板
 
@@ -211,7 +126,7 @@ source 页额外字段：`converted_path`（citation 行号校验使用的不可
 | `confidence` | 必填 | 0-1 数值。单源自动 ≤ 0.5 |
 | `aliases` | 必填 | 同义词列表，防重复建页 |
 | `contradictedBy` | 发现时填 | `[{slug, reason}]`，Lint 规则 #10 报告 |
-| `tags` | 必填 | 维度前缀格式：`时代/宋代`、`地区/河北`、`材料/瓷` 等。详见 §MOC |
+| `tags` | 必填 | 维度前缀格式：`时代/宋代`、`地区/河北`、`材料/瓷` 等。全维度：时代/地区/材料/技法/窑口/制度/器物/人物 |
 | `summary` | 必填 | 一句话摘要，Lint 规则 #7 检查 |
 
 ### 来源评分
@@ -292,13 +207,12 @@ source 页额外字段：`converted_path`（citation 行号校验使用的不可
 3. **全量实体提取**：逐页逐行逐字阅读源全文。每遇到一个人、地、物、窑口、著作、机构、事件——只要是一个独立存在的东西——立即建 entities/ 页面。不判断「值不值得建」「信息够不够」——先建。信息少就是 stub，信息多就写详。**原子写入 + 行号标注**，见上方规则。
 4. **全量概念提取**：逐页逐行逐字阅读源全文。每遇到一个跨实体的模式、技术原理、思想、制度——立即建 concepts/ 页面。不判断「抽象度够不够高」——先建。同上，原子写入+行号标注。
 5. **过程中产出综合页**：边读边发现跨实体/跨概念的关联和洞察时，即时建 syntheses/ 页面。不等未来 Query 触发。
-6. **刷新已有页（跨章回溯）**：见 RULES §30。
+6. **刷新已有页（跨章回溯）**：见 RULES §30。具体操作：读 index.md 按 tags 维度+关键词定位可能受影响的已有页面 → 逐页读全文（禁止仅 grep 命中就跳过）→ 判断新内容是否补充/修正/推翻既有信息 → 更新受影响页面 + 矛盾则填 contradictedBy。每批完成后在任务文件记录回溯页面清单。
 7. **强制链接**：新建/更新的页面，至少按 §Lint #11 的 wikilink 最低阈值包含 [[WikiLinks]]：entity ≥ 1 / concept ≥ 2 / synthesis ≥ 3 / source ≥ 0。
-8. **更新索引**：`python tools/indexgen.py` 重生成 wiki/index.md（零 LLM 参与）
+8. **更新索引**：`python3 tools/indexgen.py` 重生成 wiki/index.md（零 LLM 参与）
 9. **追加日志**：追加 wiki/log.md
-10. **重生成 MOC**：`python3 tools/gen_moc.py`（零 LLM 参与）
-11. **更新大纲**：每完成一个源后，重写 wiki/overview.md
-12. **准备提交摘要**：整理变更范围和建议 commit message，等待 boss 确认后再执行 git commit
+10. **更新大纲**：每完成一个源后，重写 wiki/overview.md
+11. **准备提交摘要**：整理变更范围和建议 commit message，等待 boss 确认后再执行 git commit
 
 > **不筛选、不评分、不设阈值。** 所有实体和概念一律建页。质量由日后的 Lint 审计负责——现在不删。先让知识库自然生长，跑一段时间，积累足够数据后再回头设计 Lint 清理规则。
 >
@@ -345,7 +259,7 @@ sed -n 'L起始,L结束p' <源文件>        # 步骤2: 逐行读原文，确认
 |------|---------|
 | 骨架层（10-20 本核心书） | 逐章逐页逐字全量提取，人全程参与 |
 | 填充层（相关但不核心） | 全量提取，但可半自动（LLM 提取后报告给人确认） |
-| 标注层（边缘相关） | 只记书名+一句话到 index.md |
+| 标注层（边缘相关） | 建 sources/ 极简 stub（书名 + 一句话），indexgen.py 自动编入 index.md |
 | 待深入层 | 不处理，等需要时再说 |
 
 #### 编译时 LLM 标记
@@ -355,27 +269,25 @@ sed -n 'L起始,L结束p' <源文件>        # 步骤2: 逐行读原文，确认
 - **provenanceState**（必填）：`extracted`（直接从源提取）| `merged`（多源合并）| `inferred`（LLM 跨源推断）| `ambiguous`（来源冲突）。区分"源里写的"和"LLM 串的"
 - **confidence**（必填）：0-1 数值。编译时约束：单源自动 ≤ 0.5
 - **aliases**（必填）：同义词列表，防重复建页
-- **tags**（必填）：按维度分层打标（时代 / 地区 / 材料 / 技法 / 窑口 / 制度 / 器物 / 人物）。MOC 生成依赖此字段
+- **tags**（必填）：按维度分层打标（时代 / 地区 / 材料 / 技法 / 窑口 / 制度 / 器物 / 人物）。index.md 维度扫描依赖此字段
 - **contradictedBy**（发现时填）：矛盾页面引用列表 `[{slug, reason}]`。编译时 LLM 标记，Lint 规则 #10 报告
-- **幽灵实体**（发现时标记）：源中有但 wiki 未建页的实体 → 记入 source-state.json，待后续 Ingest 补建
+- **幽灵实体**（发现时标记）：源中有但 wiki 未建页的实体 → 记录在任务文件批次记录中，待后续 Ingest 补建
 
 ### Query（跨源编织）
 
 **执行前：从模板创建任务。** 见 RULES §27。
 
 1. **精确直达（例外）**：如果用户明确给出实体/概念名，且 slug/title 能唯一匹配现有页面 → 可直接读对应 .md 文件，跳过后续步骤
-2. **读 index.md（默认主路径）**：读 `knowledge/wiki/index.md`（约 200 行，按四分类列出每页的 slug、标题、summary、tags），在内存中扫描匹配候选页面：
+2. **读 index.md（唯一路径）**：读 `knowledge/wiki/index.md`（约 200 行，按四分类列出每页的 slug、标题、summary、tags），在内存中扫描匹配候选页面：
    - 🔴 最高：title 与 query 关键词匹配
    - 🟡 中等：tags 维度匹配（如 query 含「宋代」→ 扫描 `时代/宋代` 标签）
    - 🟢 低：关键词出现在 summary 中
 3. **读候选页面全文**：按优先级逐页 read 对应的 .md 文件
 4. **读 overview**：读 wiki/overview.md 获得高层知识全景
-5. **BM25 补充**：候选覆盖不足时，用 `python tools/retrieve.py "<query>" --top 5 --depth 1` 做 BM25 词法补充 + wikilink 图扩展
-6. **无匹配降级**：扩大检索 `--top 20 --depth 2`
-7. 每个断言必须标注源页面（[[wikilinks]] 形式）
-8. 按专业回答协议输出：问题界定 → 结论等级 → 核心回答 → 依据链 → 限制与反例 → 缺口与下一步 → 意外发现（如有）
+5. 每个断言必须标注源页面（[[wikilinks]] 形式）
+6. 按专业回答协议输出：问题界定 → 结论等级 → 核心回答 → 依据链 → 限制与反例 → 缺口与下一步 → 意外发现（如有）
 
-> **为什么 index.md 是主路径**（Karpathy）：index.md 是内容导向的目录——按四分类列出每页的 slug、标题、一句话摘要和 tags。LLM 直接读它能快速定位相关页面，然后钻入阅读。在 ~100 source / 数百页的规模下效果出奇地好，且完全不需要 embedding/RAG 基础设施。`retrieve.py` 保留作为 BM25 词法补充 + wikilink 图扩展工具，在候选不足或需要发现间接关联时使用。embedding store（`tools/embed.py`）作为远期选项，默认不参与查询。
+> **为什么 index.md 是唯一路径**（Karpathy）：index.md 是内容导向的目录——按四分类列出每页的 slug、标题、摘要和 tags。LLM 直接读它就能快速定位相关页面，然后钻入阅读。在 ~100 source / 数百页规模下效果出奇地好，完全不需要 embedding/RAG 基础设施。
 
 **回答回填**：综合 ≥3 页且形成新洞察 → 归档为 syntheses/ 页面。这使探索的成果不消失在聊天记录里，持续复利。
 
@@ -401,7 +313,7 @@ sed -n 'L起始,L结束p' <源文件>        # 步骤2: 逐行读原文，确认
 
 核心原则：**结构问题由机器发现，语义风险由编译时 LLM 标记。** Lint 负责机审报告和处理建议，不自动执行删除、合并、降级等修复动作。
 
-**检查范围**：默认只检查四类知识页：`wiki/sources/`、`wiki/entities/`、`wiki/concepts/`、`wiki/syntheses/`。`wiki/index.md`、`wiki/log.md`、`wiki/overview.md`、`wiki/MOC.md` 是 hub 文件，不套用知识页 frontmatter / body 规则；如需检查 hub 文件，应另设 hub-lint。
+**检查范围**：默认只检查四类知识页：`wiki/sources/`、`wiki/entities/`、`wiki/concepts/`、`wiki/syntheses/`。`wiki/index.md`、`wiki/log.md`、`wiki/overview.md` 是 hub 文件，不套用知识页 frontmatter / body 规则；如需检查 hub 文件，应另设 hub-lint。
 
 #### 13 条机审规则
 

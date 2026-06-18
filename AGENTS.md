@@ -124,7 +124,7 @@ boss 发出 Ingest 指令（或确认新书可以进 Ingest）
 
 ### Query：跨源编织
 
-完整检索+降级+编织流程见 RULES.md §10 和 KNOWLEDGE.md §Query。
+完整检索+编织流程见 RULES.md §10 和 KNOWLEDGE.md §Query。
 
 **硬约束**：
 - 编织出的每个断言必须能回溯到至少一个 Wiki 页面的对应段落。

@@ -22,18 +22,16 @@
 🔴 9. 主动发现的每个断言必须能回溯到至少一个 Wiki 页面。凭空编造是底线。
 🔴 10. 回答领域问题前，必须先查 wiki。web_search 是 wiki 用尽之后的补充手段，不是第一本能。禁止绕过 wiki 直接搜 web。查询流程：
     1. 读 knowledge/wiki/index.md（全局目录，含 title/summary/tags），在内存中扫描定位候选页面
-    2. 按匹配度读候选页面全文（优先 title 匹配的精确命中，其次 tags 维度匹配，最后关键词出现）
-    3. 覆盖不足时用 `python tools/retrieve.py "<query>" --top 5 --depth 1` 补充 BM25 检索 + wikilink 图扩展
-    4. 仍不足 → 广检索 `--top 20 --depth 2`
-    5. wiki 不足以回答时才搜 web → web 来源必须标注 🌐 且置信度 low
-    6. 所有以上步骤完成后仍未找到 → 诚实说「wiki 当前无覆盖」，不编造
+    2. 按匹配度读候选页面全文（优先 title 精确命中 → tags 维度匹配 → 关键词出现在 summary）
+    3. wiki 不足以回答时才搜 web → web 来源必须标注 🌐 且置信度 low
+    4. 以上步骤完成后仍未找到 → 诚实说「wiki 当前无覆盖」，不编造
 
-    > 理由（Karpathy）：index.md 是内容导向的目录——按四分类列出每页的 slug、标题、一句话摘要和 tags。LLM 直接读它能快速定位相关页面，然后钻入阅读。在 ~100 source / 数百页的规模下效果出奇地好，且完全不需要 embedding/RAG 基础设施。
+    > 理由（Karpathy）：index.md 是内容导向的目录——按四分类列出每页的 slug、标题、摘要和 tags。LLM 直接读它就能快速定位相关页面，然后钻入阅读。在 ~100 source / 数百页规模下效果出奇地好，完全不需要 embedding/RAG 基础设施。
 
 ## 操作安全
 
 🔴 11. 以下操作必须获得 boss 明确确认：删除文件、合并页面、覆盖原始来源或证据底本、发布到外部系统、修改 Schema 文件、执行 git commit。
-🟡 11a. 以下知识库维护动作可在任务范围内自动执行：新增/更新 wiki 知识页、更新 index/log/overview/MOC、写入或更新任务文件、生成报告草稿。自动执行不得越过规则 11 的确认边界。
+🟡 11a. 以下知识库维护动作可在任务范围内自动执行：新增/更新 wiki 知识页、更新 index/log/overview、写入或更新任务文件、生成报告草稿。自动执行不得越过规则 11 的确认边界。
 🔴 12. token、密钥、appSecret 绝不输出、绝不写入仓库。
 🟢 13. 本地 Markdown 是主知识库；飞书云文档只是发布层。
 🟢 14. 持久化内容必须放入 workspace root 内，禁止依赖临时目录（如 `/tmp/`）。具体路径按当前运行环境解析，不在规则中硬编码机器专属路径。
@@ -87,9 +85,7 @@
 
 🔴 30. Ingest 每完成一批实体/概念页后，必须执行跨章回溯：逐页阅读受影响页面，判断新内容是否补充、修正或推翻既有信息。禁止仅凭搜索命中就跳过阅读。具体流程见 `KNOWLEDGE.md`。
 
-🟡 30a. 每次 Ingest 或 Lint 完成后，必须运行 `python tools/indexgen.py` 刷新 index.md，运行 `python tools/gen_moc.py` 刷新 MOC.md。index.md 和 MOC.md 为零 LLM 参与脚本产物，禁止手动编辑——脚本会覆盖。临时笔记/状态标注写在 log.md。
-
-🟢 30b. Embedding store（远期选项，默认不参与查询）：`python tools/embed.py` 全量重建，`python tools/embed.py --changed slugs.txt` 增量更新。embedding store 只在明确需要语义检索且手动 `--semantic` 时启用。Query 的主路径是 index.md → 读候选正文；retrieve.py 做 BM25 词法补充。
+🟡 30a. 每次 Ingest 或 Lint 完成后，必须运行 `python3 tools/indexgen.py` 刷新 index.md。index.md 为零 LLM 参与脚本产物，禁止手动编辑——脚本会覆盖。临时笔记/状态标注写在 log.md。
 
 ## sudo 权限
 

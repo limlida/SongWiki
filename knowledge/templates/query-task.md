@@ -12,10 +12,9 @@
 ## Step 1: 查 wiki
 
 - [ ] 精确直达判断：明确 slug/title 唯一命中？___（是：直接读对应页 / 否：继续检索）
-- [ ] 已运行 `python tools/retrieve.py "<user query>" --top 5 --depth 1` 定位相关页面
-- [ ] 如 retrieve.py 不可用：已降级为读 wiki/index.md → 搜索标题/tags
+- [ ] 已读 wiki/index.md，在内存中扫描候选页面（优先 title 匹配 → tags 维度匹配 → 关键词在 summary）
+- [ ] 已读匹配的候选页面全文
 - [ ] 已读 wiki/overview.md 获得高层全景
-- [ ] 已读匹配的 sources/ + entities/ + concepts/ + syntheses/ 页面
 - [ ] wiki 覆盖程度：___（充分 / 部分 / 不足）
 
 ## Step 2: 判断是否需要 web 补充
@@ -36,8 +35,7 @@
 
 - [ ] 综合 ≥3 页且形成新洞察 → 归档为 synthesis 页
 - [ ] 更新受影响已有页面
-- [ ] 运行 `python tools/indexgen.py` 更新 wiki/index.md
-- [ ] 运行 `python tools/gen_moc.py` 更新 wiki/MOC.md
+- [ ] 运行 `python3 tools/indexgen.py` 更新 wiki/index.md
 - [ ] 追加 wiki/log.md
 
 ## 收尾

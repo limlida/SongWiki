@@ -8,7 +8,7 @@
 
 - [ ] 范围：全库 / <指定目录>
 - [ ] 检查对象仅限四类知识页：`wiki/sources/`、`wiki/entities/`、`wiki/concepts/`、`wiki/syntheses/`
-- [ ] hub 文件（index/log/overview/MOC）不套用知识页规则
+- [ ] hub 文件（index/log/overview）不套用知识页规则
 - [ ] 已读 KNOWLEDGE.md §Lint（13 条机审规则）
 
 ## 阶段 1：基础结构检查（8 条）

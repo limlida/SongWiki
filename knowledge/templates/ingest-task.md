@@ -63,7 +63,6 @@
 
 - [ ] 更新 wiki/index.md
 - [ ] 追加 wiki/log.md
-- [ ] 重生成 wiki/MOC.md（`python3 tools/gen_moc.py`）
 
 ## 收尾
 

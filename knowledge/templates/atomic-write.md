@@ -39,4 +39,4 @@ bash tools/validate-page.sh wiki/entities/xxx.md.tmp && \
 ## 适用范围
 
 - `wiki/sources/`、`wiki/entities/`、`wiki/concepts/`、`wiki/syntheses/` 下所有 `.md` 页面
-- 不适用于 hub 文件（index.md / log.md / overview.md / MOC.md）——这些是追加/覆写或脚本生成模式
+- 不适用于 hub 文件（index.md / log.md / overview.md）——这些是追加/覆写或脚本生成模式
