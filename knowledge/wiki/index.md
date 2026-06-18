@@ -1,6 +1,6 @@
 # Wiki 全局符号表
 
-> 自动生成 | 最后更新：2026-06-18 02:41 UTC
+> 自动生成 | 最后更新：2026-06-18 06:45 UTC
 > 总页数：0（sources 0 + entities 0 + concepts 0 + syntheses 0）
 > 生成脚本：tools/indexgen.py（零 LLM 参与）
 
@@ -23,4 +23,4 @@ _暂无页面_
 _暂无页面_
 
 ---
-_自动生成于 2026-06-18 02:41 UTC | `python tools/indexgen.py`_
+_自动生成于 2026-06-18 06:45 UTC | `python tools/indexgen.py`_
